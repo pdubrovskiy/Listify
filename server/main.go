@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
+	"github.com/pdubrovskiy/listify/database"
 	"github.com/pdubrovskiy/listify/routes"
 )
 
@@ -18,7 +19,8 @@ func main() {
 	}
 	PORT := os.Getenv("PORT")
 
+	database.ConnectMongoDB()
 	routes.SetupTodoRoutes(app)
 
-	log.Fatal(app.Listen(":" + PORT))
+	log.Fatal(app.Listen("0.0.0.0:" + PORT))
 }
