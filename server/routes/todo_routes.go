@@ -5,11 +5,14 @@ import (
 	"github.com/pdubrovskiy/listify/handlers"
 )
 
-func SetupTodoRoutes(app *fiber.App) {
+func SetupRoutes(app *fiber.App) {
 	todoHandler := handlers.NewTodoHandler()
 
-	app.Get("/api/todos", todoHandler.GetTodos)
-	app.Post("/api/todos", todoHandler.CreateTodo)
-	app.Patch("/api/todos/:id", todoHandler.CompleteTodo)
-	app.Delete("/api/todos/:id", todoHandler.DeleteTodo)
+	// API v1 routes
+	v1 := app.Group("/api/v1")
+
+	v1.Get("/todos", todoHandler.GetTodos)
+	v1.Post("/todos", todoHandler.CreateTodo)
+	v1.Put("/todos/:id/complete", todoHandler.CompleteTodo)
+	v1.Delete("/todos/:id", todoHandler.DeleteTodo)
 }

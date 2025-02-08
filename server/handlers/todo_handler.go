@@ -8,6 +8,7 @@ import (
 	"github.com/pdubrovskiy/listify/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type TodoHandler struct{}
@@ -52,7 +53,10 @@ func (h *TodoHandler) CreateTodo(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Error creating todo"})
 	}
 
-	todo.ID = result.InsertedID.(primitive.ObjectID)
+	if id, ok := result.(primitive.ObjectID); ok {
+		todo.ID = id
+	}
+
 	return c.Status(201).JSON(todo)
 }
 
@@ -71,10 +75,13 @@ func (h *TodoHandler) CompleteTodo(c *fiber.Ctx) error {
 	)
 
 	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return c.Status(404).JSON(fiber.Map{"error": "Todo not found"})
+		}
 		return c.Status(500).JSON(fiber.Map{"error": "Error updating todo"})
 	}
 
-	if result.MatchedCount == 0 {
+	if r, ok := result.(struct{ MatchedCount int64 }); ok && r.MatchedCount == 0 {
 		return c.Status(404).JSON(fiber.Map{"error": "Todo not found"})
 	}
 
@@ -90,10 +97,13 @@ func (h *TodoHandler) DeleteTodo(c *fiber.Ctx) error {
 
 	result, err := database.TodoCollection.DeleteOne(context.Background(), bson.M{"_id": objectId})
 	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return c.Status(404).JSON(fiber.Map{"error": "Todo not found"})
+		}
 		return c.Status(500).JSON(fiber.Map{"error": "Error deleting todo"})
 	}
 
-	if result.DeletedCount == 0 {
+	if r, ok := result.(struct{ DeletedCount int64 }); ok && r.DeletedCount == 0 {
 		return c.Status(404).JSON(fiber.Map{"error": "Todo not found"})
 	}
 
