@@ -1,0 +1,26 @@
+#!/bin/bash
+
+echo "Running pre-push hooks..."
+
+# Running Go tests
+echo "Running Go tests..."
+cd server
+if ! go test ./... ; then
+    echo "Go tests failed"
+    cd ..
+    exit 1
+fi
+cd ..
+
+# Running frontend tests
+echo "Running frontend tests..."
+cd client
+if ! npm test ; then
+    echo "Frontend tests failed"
+    cd ..
+    exit 1
+fi
+cd ..
+
+echo "All tests passed! Pushing changes..."
+exit 0 

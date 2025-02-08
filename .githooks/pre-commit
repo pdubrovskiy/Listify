@@ -1,0 +1,33 @@
+#!/bin/bash
+
+echo "Running pre-commit hooks..."
+
+# Checking Go formatting
+echo "Checking Go formatting..."
+cd server
+if ! go fmt ./... ; then
+    echo "Go fmt failed"
+    cd ..
+    exit 1
+fi
+
+# Running Go linter
+echo "Running Go linter..."
+if ! go vet ./... ; then
+    echo "Go vet failed"
+    cd ..
+    exit 1
+fi
+cd ..
+
+# Checking JS/TS formatting
+echo "Checking JS/TS formatting..."
+cd client
+if ! npm run lint ; then
+    echo "JS/TS linting failed"
+    cd ..
+    exit 1
+fi
+cd ..
+
+exit 0 
