@@ -1,0 +1,12 @@
+[build]
+cmd = "go build -o ./bin/listify ./server"
+output = "bin/listify"
+
+[dev]
+cmd = "air"
+bin = "bin/listify"
+watch_dir = ["server"]
+
+[log]
+level = "debug"
+file = "air.log"
