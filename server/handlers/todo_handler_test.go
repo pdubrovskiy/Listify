@@ -40,12 +40,13 @@ func (m *mockCollection) DeleteOne(ctx context.Context, filter interface{}) (int
 }
 
 type mockCursor struct {
-	todos []models.Todo
-	err   error
+	todos    []models.Todo
+	err      error
+	closeErr error
 }
 
 func (m *mockCursor) Close(context.Context) error {
-	return nil
+	return m.closeErr
 }
 
 func (m *mockCursor) All(ctx context.Context, result interface{}) error {
@@ -65,7 +66,7 @@ func setupTestApp(mc database.Collection) *fiber.App {
 	v1 := app.Group("/api/v1")
 	v1.Get("/todos", handler.GetTodos)
 	v1.Post("/todos", handler.CreateTodo)
-	v1.Put("/todos/:id/complete", handler.CompleteTodo)
+	v1.Put("/todos/:id/complete", handler.UpdateTodo)
 	v1.Delete("/todos/:id", handler.DeleteTodo)
 
 	return app
@@ -77,6 +78,7 @@ func TestGetTodos(t *testing.T) {
 		mockData       []models.Todo
 		mockError      error
 		cursorError    error
+		closeError     error
 		expectedStatus int
 		expectedBody   string
 	}{
@@ -109,6 +111,12 @@ func TestGetTodos(t *testing.T) {
 			expectedStatus: 500,
 			expectedBody:   `{"error":"Error parsing todos"}`,
 		},
+		{
+			name:           "Cursor Close Error",
+			closeError:     errors.New("close error"),
+			expectedStatus: 200,
+			expectedBody:   "[]",
+		},
 	}
 
 	for _, tt := range tests {
@@ -118,7 +126,7 @@ func TestGetTodos(t *testing.T) {
 					if tt.mockError != nil {
 						return nil, tt.mockError
 					}
-					return &mockCursor{todos: tt.mockData, err: tt.cursorError}, nil
+					return &mockCursor{todos: tt.mockData, err: tt.cursorError, closeErr: tt.closeError}, nil
 				},
 			}
 
@@ -145,6 +153,7 @@ func TestCreateTodo(t *testing.T) {
 		input          string
 		mockID         primitive.ObjectID
 		mockError      error
+		mockNilResult  bool
 		expectedStatus int
 		expectedBody   string
 	}{
@@ -174,9 +183,9 @@ func TestCreateTodo(t *testing.T) {
 			expectedBody:   `{"error":"Error creating todo"}`,
 		},
 		{
-			name:           "Invalid ID Type",
+			name:           "Nil Result",
 			input:          `{"body":"Test todo"}`,
-			mockID:         primitive.NilObjectID,
+			mockNilResult:  true,
 			expectedStatus: 201,
 		},
 	}
@@ -187,6 +196,9 @@ func TestCreateTodo(t *testing.T) {
 				insertOneFunc: func(ctx context.Context, doc interface{}) (interface{}, error) {
 					if tt.mockError != nil {
 						return nil, tt.mockError
+					}
+					if tt.mockNilResult {
+						return nil, nil
 					}
 					return tt.mockID, nil
 				},
@@ -212,30 +224,59 @@ func TestCreateTodo(t *testing.T) {
 
 func TestCompleteTodo(t *testing.T) {
 	validID := primitive.NewObjectID()
+
 	tests := []struct {
 		name           string
 		todoID         string
+		requestBody    string
 		mockError      error
-		mockResult     interface{}
+		mockResult     *mongo.UpdateResult
+		mockNilResult  bool
 		expectedStatus int
 		expectedBody   string
 	}{
 		{
-			name:           "Success",
+			name:           "Success - Set completed to true",
 			todoID:         validID.Hex(),
-			mockResult:     struct{ MatchedCount int64 }{1},
+			requestBody:    `{"completed":true}`,
+			mockResult:     &mongo.UpdateResult{MatchedCount: 1, ModifiedCount: 1},
 			expectedStatus: 200,
-			expectedBody:   `{"message":"Todo marked as completed"}`,
+			expectedBody:   `{"message":"Todo status updated successfully"}`,
+		},
+		{
+			name:           "Success - Set completed to false",
+			todoID:         validID.Hex(),
+			requestBody:    `{"completed":false}`,
+			mockResult:     &mongo.UpdateResult{MatchedCount: 1, ModifiedCount: 1},
+			expectedStatus: 200,
+			expectedBody:   `{"message":"Todo status updated successfully"}`,
+		},
+		{
+			name:           "Invalid request body",
+			todoID:         validID.Hex(),
+			requestBody:    `invalid json`,
+			expectedStatus: 400,
+			expectedBody:   `{"error":"Invalid request body"}`,
+		},
+		{
+			name:           "Missing request body",
+			todoID:         validID.Hex(),
+			requestBody:    `{}`,
+			mockResult:     &mongo.UpdateResult{MatchedCount: 1, ModifiedCount: 1},
+			expectedStatus: 200,
+			expectedBody:   `{"message":"Todo status updated successfully"}`,
 		},
 		{
 			name:           "Invalid ID format",
 			todoID:         "invalid",
+			requestBody:    `{"completed":true}`,
 			expectedStatus: 400,
 			expectedBody:   `{"error":"Invalid ID format"}`,
 		},
 		{
 			name:           "Todo not found",
 			todoID:         primitive.NewObjectID().Hex(),
+			requestBody:    `{"completed":true}`,
 			mockError:      mongo.ErrNoDocuments,
 			expectedStatus: 404,
 			expectedBody:   `{"error":"Todo not found"}`,
@@ -243,6 +284,7 @@ func TestCompleteTodo(t *testing.T) {
 		{
 			name:           "Database Error",
 			todoID:         validID.Hex(),
+			requestBody:    `{"completed":true}`,
 			mockError:      errors.New("database error"),
 			expectedStatus: 500,
 			expectedBody:   `{"error":"Error updating todo"}`,
@@ -250,16 +292,18 @@ func TestCompleteTodo(t *testing.T) {
 		{
 			name:           "No Match Found",
 			todoID:         validID.Hex(),
-			mockResult:     struct{ MatchedCount int64 }{0},
+			requestBody:    `{"completed":true}`,
+			mockResult:     &mongo.UpdateResult{MatchedCount: 0, ModifiedCount: 0},
 			expectedStatus: 404,
 			expectedBody:   `{"error":"Todo not found"}`,
 		},
 		{
-			name:           "Invalid Result Type",
+			name:           "Nil Result",
 			todoID:         validID.Hex(),
-			mockResult:     "invalid",
-			expectedStatus: 200,
-			expectedBody:   `{"message":"Todo marked as completed"}`,
+			requestBody:    `{"completed":true}`,
+			mockNilResult:  true,
+			expectedStatus: 404,
+			expectedBody:   `{"error":"Todo not found"}`,
 		},
 	}
 
@@ -270,12 +314,16 @@ func TestCompleteTodo(t *testing.T) {
 					if tt.mockError != nil {
 						return nil, tt.mockError
 					}
+					if tt.mockNilResult {
+						return nil, nil
+					}
 					return tt.mockResult, nil
 				},
 			}
 
 			app := setupTestApp(mc)
-			req := httptest.NewRequest("PUT", "/api/v1/todos/"+tt.todoID+"/complete", nil)
+			req := httptest.NewRequest("PUT", "/api/v1/todos/"+tt.todoID+"/complete", bytes.NewBufferString(tt.requestBody))
+			req.Header.Set("Content-Type", "application/json")
 			resp, err := app.Test(req)
 
 			assert.NoError(t, err)
@@ -297,14 +345,15 @@ func TestDeleteTodo(t *testing.T) {
 		name           string
 		todoID         string
 		mockError      error
-		mockResult     interface{}
+		mockResult     *mongo.DeleteResult
+		mockNilResult  bool
 		expectedStatus int
 		expectedBody   string
 	}{
 		{
 			name:           "Success",
 			todoID:         validID.Hex(),
-			mockResult:     struct{ DeletedCount int64 }{1},
+			mockResult:     &mongo.DeleteResult{DeletedCount: 1},
 			expectedStatus: 200,
 			expectedBody:   `{"message":"Todo deleted"}`,
 		},
@@ -331,16 +380,16 @@ func TestDeleteTodo(t *testing.T) {
 		{
 			name:           "No Match Found",
 			todoID:         validID.Hex(),
-			mockResult:     struct{ DeletedCount int64 }{0},
+			mockResult:     &mongo.DeleteResult{DeletedCount: 0},
 			expectedStatus: 404,
 			expectedBody:   `{"error":"Todo not found"}`,
 		},
 		{
-			name:           "Invalid Result Type",
+			name:           "Nil Result",
 			todoID:         validID.Hex(),
-			mockResult:     "invalid",
-			expectedStatus: 200,
-			expectedBody:   `{"message":"Todo deleted"}`,
+			mockNilResult:  true,
+			expectedStatus: 404,
+			expectedBody:   `{"error":"Todo not found"}`,
 		},
 	}
 
@@ -350,6 +399,9 @@ func TestDeleteTodo(t *testing.T) {
 				deleteOneFunc: func(ctx context.Context, filter interface{}) (interface{}, error) {
 					if tt.mockError != nil {
 						return nil, tt.mockError
+					}
+					if tt.mockNilResult {
+						return nil, nil
 					}
 					return tt.mockResult, nil
 				},

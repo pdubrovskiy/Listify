@@ -13,21 +13,22 @@ export const TodoItem = ({ todo }: { todo: ITodo }) => {
   const borderHoverColor = useColorModeValue("gray.300", "whiteAlpha.300");
   const textColor = useColorModeValue("gray.800", "white");
   const completedTextColor = useColorModeValue("green.600", "green.200");
+  const completedColor = useColorModeValue("green.500", "green.400");
+  const completedHoverColor = useColorModeValue("green.600", "green.300");
+  const uncompleteColor = useColorModeValue("gray.300", "gray.600");
+  const uncompleteHoverColor = useColorModeValue("gray.400", "gray.500");
 
   const queryClient = useQueryClient();
   const { mutate: updateTodo, isPending: isUpdating } = useMutation({
     mutationKey: ["updateTodo"],
     mutationFn: async () => {
-      if (todo.completed) {
-        return alert("Task already completed");
-      }
-
       try {
         const res = await fetch(`${BASE_URL}/todos/${todo._id}`, {
           method: "PATCH",
           headers: {
-            "Content-Type": "application-json",
+            "Content-Type": "application/json",
           },
+          body: JSON.stringify({ completed: !todo.completed }),
         });
         const data = await res.json();
 
@@ -96,20 +97,16 @@ export const TodoItem = ({ todo }: { todo: ITodo }) => {
       </Flex>
       <Flex gap={2} alignItems="center">
         <Box
-          color={useColorModeValue("green.500", "green.400")}
+          color={todo.completed ? completedColor : uncompleteColor}
           cursor="pointer"
           _hover={{
-            color: useColorModeValue("green.600", "green.300"),
+            color: todo.completed ? completedHoverColor : uncompleteHoverColor,
             transform: "scale(1.1)",
           }}
           transition="all 0.2s"
           onClick={() => updateTodo()}
         >
-          {isUpdating ? (
-            <Spinner size={"sm"}></Spinner>
-          ) : (
-            <FaCheckCircle size={22} />
-          )}
+          {isUpdating ? <Spinner size={"sm"} /> : <FaCheckCircle size={22} />}
         </Box>
         <Box
           color={useColorModeValue("red.500", "red.400")}
