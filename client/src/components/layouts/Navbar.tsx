@@ -19,9 +19,9 @@ const bounceScale = keyframes`
 
 export const Navbar = () => {
   const { toggleColorMode, colorMode } = useColorMode();
-  const bgColor = colorMode === "dark" ? "#080808" : "#ffffff";
+  const bgColor = colorMode === "dark" ? "#111111" : "#ffffff";
   const textColor = colorMode === "dark" ? "#E6E6E6" : "#080808";
-  const borderColor = colorMode === "dark" ? "gray.700" : "gray.200";
+  const borderColor = colorMode === "dark" ? "gray.800" : "gray.200";
   const hoverBg = colorMode === "dark" ? "gray.700" : "gray.100";
   const iconColor = colorMode === "dark" ? "#E6E6E6" : "#1A1A1A";
   const buttonBg = colorMode === "dark" ? "transparent" : "gray.100";
@@ -43,7 +43,16 @@ export const Navbar = () => {
       borderBottom="1px"
       borderColor={borderColor}
       zIndex={100}
-      transition="background-color 0.3s, color 0.3s"
+      transition="all 0.3s"
+      boxShadow={
+        colorMode === "dark"
+          ? "0 4px 20px rgba(0,0,0,0.4)"
+          : "0 2px 8px rgba(0,0,0,0.1)"
+      }
+      backdropFilter="blur(8px)"
+      backgroundColor={
+        colorMode === "dark" ? "rgba(17,17,17,0.95)" : "rgba(255,255,255,0.95)"
+      }
     >
       <Container maxW="container.xl">
         <Flex py={4} align="center" justify="space-between">

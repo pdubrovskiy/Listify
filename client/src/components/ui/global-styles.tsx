@@ -3,7 +3,7 @@ import { useColorMode } from "./color-mode";
 
 export function GlobalStyles() {
   const { colorMode } = useColorMode();
-  const bgColor = colorMode === "dark" ? "#080808" : "#ffffff";
+  const bgColor = colorMode === "dark" ? "#111111" : "#ffffff";
 
   return (
     <Global

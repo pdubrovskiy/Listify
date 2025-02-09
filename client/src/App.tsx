@@ -1,4 +1,4 @@
-import { Box, Container } from "@chakra-ui/react";
+import { Box, Container, Flex } from "@chakra-ui/react";
 import { TodoForm } from "./components/features/TodoForm";
 import { Navbar } from "./components/layouts/Navbar";
 import { GlobalStyles } from "./components/ui/global-styles";
@@ -8,9 +8,11 @@ function App() {
     <Box minH="100vh">
       <GlobalStyles />
       <Navbar />
-      <Container maxW="container.md" pt="100px">
-        <TodoForm />
-      </Container>
+      <Flex w="100vw" pt="120px">
+        <Container maxW="container.xl" px={4}>
+          <TodoForm />
+        </Container>
+      </Flex>
     </Box>
   );
 }
