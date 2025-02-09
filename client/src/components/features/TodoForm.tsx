@@ -40,7 +40,7 @@ export const TodoForm = () => {
             borderColor: colorMode === "dark" ? "gray.500" : "gray.300",
           }}
           _focus={{
-            borderColor: colorMode === "dark" ? "blue.300" : "blue.500",
+            borderColor: colorMode === "dark" ? "gray.300" : "gray.500",
             boxShadow: "none",
           }}
         />
