@@ -60,14 +60,20 @@ func (h *TodoHandler) CreateTodo(c *fiber.Ctx) error {
 	return c.Status(201).JSON(todo)
 }
 
-func (h *TodoHandler) CompleteTodo(c *fiber.Ctx) error {
+func (h *TodoHandler) UpdateTodo(c *fiber.Ctx) error {
 	id := c.Params("id")
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid ID format"})
 	}
 
-	update := bson.M{"$set": bson.M{"completed": true}}
+	var body struct {
+		Completed bool `json:"completed"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid request body"})
+	}
+	update := bson.M{"$set": bson.M{"completed": body.Completed}}
 	result, err := database.TodoCollection.UpdateOne(
 		context.Background(),
 		bson.M{"_id": objectId},
@@ -81,11 +87,16 @@ func (h *TodoHandler) CompleteTodo(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Error updating todo"})
 	}
 
-	if r, ok := result.(struct{ MatchedCount int64 }); ok && r.MatchedCount == 0 {
+	if result == nil {
 		return c.Status(404).JSON(fiber.Map{"error": "Todo not found"})
 	}
 
-	return c.Status(200).JSON(fiber.Map{"message": "Todo marked as completed"})
+	updateResult, ok := result.(*mongo.UpdateResult)
+	if !ok || updateResult.MatchedCount == 0 {
+		return c.Status(404).JSON(fiber.Map{"error": "Todo not found"})
+	}
+
+	return c.Status(200).JSON(fiber.Map{"message": "Todo status updated successfully"})
 }
 
 func (h *TodoHandler) DeleteTodo(c *fiber.Ctx) error {
@@ -103,7 +114,12 @@ func (h *TodoHandler) DeleteTodo(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Error deleting todo"})
 	}
 
-	if r, ok := result.(struct{ DeletedCount int64 }); ok && r.DeletedCount == 0 {
+	if result == nil {
+		return c.Status(404).JSON(fiber.Map{"error": "Todo not found"})
+	}
+
+	deleteResult, ok := result.(*mongo.DeleteResult)
+	if !ok || deleteResult.DeletedCount == 0 {
 		return c.Status(404).JSON(fiber.Map{"error": "Todo not found"})
 	}
 
