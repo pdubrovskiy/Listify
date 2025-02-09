@@ -80,7 +80,7 @@ func ConnectDB() {
 		log.Fatal(err)
 	}
 
-	collection := client.Database("listify").Collection("todos")
+	collection := client.Database("listify_db").Collection("todos")
 	TodoCollection = &MongoCollection{coll: collection}
 	log.Println("Connected to MongoDB!")
 }
