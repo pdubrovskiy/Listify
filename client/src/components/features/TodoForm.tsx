@@ -1,26 +1,42 @@
+import { BASE_URL } from "@/App";
 import { Button, Flex, Input, Spinner } from "@chakra-ui/react";
-import { useColorMode } from "../ui/color-mode";
-import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { FormEvent, useState } from "react";
 import { IoMdAdd } from "react-icons/io";
+import { useColorMode } from "../ui/color-mode";
 
 export const TodoForm = () => {
   const [newTodo, setNewTodo] = useState("");
-  const [isPending, setIsPending] = useState(false);
   const { colorMode } = useColorMode();
 
-  const createTodo = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsPending(true);
-    try {
-      alert("Todo added!");
-      setNewTodo("");
-    } finally {
-      setIsPending(false);
-    }
-  };
+  const queryClient = useQueryClient();
+  const { mutate: createTodo, isPending: isCreating } = useMutation({
+    mutationKey: ["createTodo"],
+    mutationFn: async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      try {
+        const res = await fetch(`${BASE_URL}/todos`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ body: newTodo }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || "Something went wrong");
+        }
+        setNewTodo("");
+
+        return data;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
+  });
 
   return (
-    <form onSubmit={createTodo}>
+    <form onSubmit={(e) => createTodo(e)}>
       <Flex gap={3} maxW="800px" mx="auto">
         <Input
           type="text"
@@ -60,7 +76,7 @@ export const TodoForm = () => {
           }}
           disabled={!newTodo.trim()}
         >
-          {isPending ? <Spinner size="sm" /> : <IoMdAdd size={24} />}
+          {isCreating ? <Spinner size="sm" /> : <IoMdAdd size={24} />}
         </Button>
       </Flex>
     </form>

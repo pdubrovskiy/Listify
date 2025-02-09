@@ -1,4 +1,6 @@
-import { Badge, Box, Flex, Text } from "@chakra-ui/react";
+import { BASE_URL } from "@/App";
+import { Badge, Box, Flex, Spinner, Text } from "@chakra-ui/react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { useColorModeValue } from "../ui/color-mode";
@@ -11,6 +13,53 @@ export const TodoItem = ({ todo }: { todo: ITodo }) => {
   const borderHoverColor = useColorModeValue("gray.300", "whiteAlpha.300");
   const textColor = useColorModeValue("gray.800", "white");
   const completedTextColor = useColorModeValue("green.600", "green.200");
+
+  const queryClient = useQueryClient();
+  const { mutate: updateTodo, isPending: isUpdating } = useMutation({
+    mutationKey: ["updateTodo"],
+    mutationFn: async () => {
+      if (todo.completed) {
+        return alert("Task already completed");
+      }
+
+      try {
+        const res = await fetch(`${BASE_URL}/todos/${todo._id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application-json",
+          },
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "Something went wrong");
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+  });
+
+  const { mutate: deleteTodo, isPending: isDeleting } = useMutation({
+    mutationKey: ["deleteTodo"],
+    mutationFn: async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/todos/${todo._id}`, {
+          method: "DELETE",
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || "Something went wrong");
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
+  });
 
   return (
     <Flex gap={3} alignItems="center">
@@ -54,8 +103,13 @@ export const TodoItem = ({ todo }: { todo: ITodo }) => {
             transform: "scale(1.1)",
           }}
           transition="all 0.2s"
+          onClick={() => updateTodo()}
         >
-          <FaCheckCircle size={22} />
+          {isUpdating ? (
+            <Spinner size={"sm"}></Spinner>
+          ) : (
+            <FaCheckCircle size={22} />
+          )}
         </Box>
         <Box
           color={useColorModeValue("red.500", "red.400")}
@@ -65,8 +119,13 @@ export const TodoItem = ({ todo }: { todo: ITodo }) => {
             transform: "scale(1.1)",
           }}
           transition="all 0.2s"
+          onClick={() => deleteTodo()}
         >
-          <MdDelete size={26} />
+          {isDeleting ? (
+            <Spinner size={"sm"}></Spinner>
+          ) : (
+            <MdDelete size={26} />
+          )}
         </Box>
       </Flex>
     </Flex>
