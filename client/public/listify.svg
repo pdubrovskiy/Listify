@@ -1,0 +1,7 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path opacity="0.6"
+        d="M0 28C0 12.536 12.536 0 28 0H228C243.464 0 256 12.536 256 28V228C256 243.464 243.464 256 228 256H28C12.536 256 0 243.464 0 228V28Z"
+        fill="none" />
+    <path d="M51 45V210H217" stroke="#E6E6E6" stroke-width="24" />
+    <line x1="204.999" y1="44.8899" x2="206.009" y2="154.89" stroke="#E6E6E6" stroke-width="24" />
+</svg>
