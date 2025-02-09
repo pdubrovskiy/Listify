@@ -1,3 +1,4 @@
+import { BASE_URL } from "@/App";
 import {
   Container,
   Flex,
@@ -6,27 +7,22 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
-import { useColorModeValue } from "../ui/color-mode";
-import { TodoItem } from "./TodoItem";
 import { useQuery } from "@tanstack/react-query";
+import { useColorModeValue } from "../ui/color-mode";
 import { ITodo } from "./interfaces/todo.interface";
+import { TodoItem } from "./TodoItem";
 
 export const TodoList = () => {
-  const [isLoading] = useState(false);
-  const headingGradient = useColorModeValue(
-    "linear(to-r, blue.600, purple.600)",
-    "linear(to-r, blue.400, purple.500)"
-  );
+  const headingColor = useColorModeValue("black", "white");
   const emptyStateColor = useColorModeValue("gray.600", "whiteAlpha.700");
   const spinnerColor = useColorModeValue("purple.600", "purple.500");
 
-  const { data: todos } = useQuery<Array<ITodo>>({
+  const { data: todos, isLoading } = useQuery<Array<ITodo>>({
     queryKey: ["todos"],
 
     queryFn: async () => {
       try {
-        const res = await fetch("http://localhost:4000/api/v1/todos");
+        const res = await fetch(`${BASE_URL}/todos`);
         const data = await res.json();
 
         if (!res.ok) {
@@ -46,11 +42,11 @@ export const TodoList = () => {
         as="h1"
         fontSize={{ base: "2xl", md: "4xl" }}
         textTransform="uppercase"
-        fontWeight="bold"
+        fontWeight="extrabold"
         textAlign="center"
         mb={8}
-        bgGradient={headingGradient}
-        bgClip="text"
+        color={headingColor}
+        letterSpacing="wide"
       >
         Today's Tasks
       </Heading>
