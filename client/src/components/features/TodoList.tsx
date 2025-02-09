@@ -9,9 +9,11 @@ import {
 import { useState } from "react";
 import { useColorModeValue } from "../ui/color-mode";
 import { TodoItem } from "./TodoItem";
+import { useQuery } from "@tanstack/react-query";
+import { ITodo } from "./interfaces/todo.interface";
 
 export const TodoList = () => {
-  const [isLoading] = useState(true);
+  const [isLoading] = useState(false);
   const headingGradient = useColorModeValue(
     "linear(to-r, blue.600, purple.600)",
     "linear(to-r, blue.400, purple.500)"
@@ -19,28 +21,25 @@ export const TodoList = () => {
   const emptyStateColor = useColorModeValue("gray.600", "whiteAlpha.700");
   const spinnerColor = useColorModeValue("purple.600", "purple.500");
 
-  const todos = [
-    {
-      _id: 1,
-      body: "Buy groceries",
-      completed: true,
+  const { data: todos } = useQuery<Array<ITodo>>({
+    queryKey: ["todos"],
+
+    queryFn: async () => {
+      try {
+        const res = await fetch("http://localhost:4000/api/v1/todos");
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "Something went wrong");
+        }
+
+        return data;
+      } catch (err) {
+        console.log(err);
+      }
     },
-    {
-      _id: 2,
-      body: "Walk the dog",
-      completed: false,
-    },
-    {
-      _id: 3,
-      body: "Do laundry",
-      completed: false,
-    },
-    {
-      _id: 4,
-      body: "Cook dinner",
-      completed: true,
-    },
-  ];
+  });
+
   return (
     <Container maxW="container.md" py={8}>
       <Heading

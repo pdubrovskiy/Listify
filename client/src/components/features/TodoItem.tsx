@@ -2,14 +2,9 @@ import { Badge, Box, Flex, Text } from "@chakra-ui/react";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { useColorModeValue } from "../ui/color-mode";
+import { ITodo } from "./interfaces/todo.interface";
 
-interface Todo {
-  _id: number;
-  body: string;
-  completed: boolean;
-}
-
-export const TodoItem = ({ todo }: { todo: Todo }) => {
+export const TodoItem = ({ todo }: { todo: ITodo }) => {
   const bgColor = useColorModeValue("gray.50", "whiteAlpha.50");
   const bgHoverColor = useColorModeValue("gray.100", "whiteAlpha.100");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.200");
