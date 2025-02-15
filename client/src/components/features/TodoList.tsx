@@ -1,7 +1,7 @@
-import { BASE_URL } from "@/App";
+import { BACKEND_BASE_URL } from "@/config/constants";
 import {
-  Container,
   Box,
+  Container,
   Flex,
   Heading,
   Spinner,
@@ -9,10 +9,10 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
+import React from "react";
 import { useColorModeValue } from "../ui/color-mode";
 import { ITodo } from "./interfaces/todo.interface";
 import { TodoItem } from "./TodoItem";
-import React from "react";
 
 export const TodoList = () => {
   const headingColor = useColorModeValue("black", "white");
@@ -25,7 +25,7 @@ export const TodoList = () => {
 
     queryFn: async () => {
       try {
-        const res = await fetch(`${BASE_URL}/todos`);
+        const res = await fetch(`${BACKEND_BASE_URL}/todos`);
         const data = await res.json();
 
         if (!res.ok) {

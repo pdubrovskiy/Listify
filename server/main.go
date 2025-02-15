@@ -13,7 +13,7 @@ import (
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
+		log.Println("No .env file found. Using environment variables.")
 	}
 
 	database.ConnectDB()
@@ -29,5 +29,10 @@ func main() {
 	routes.SetupRoutes(app)
 
 	PORT := os.Getenv("PORT")
+	if PORT == "" {
+		PORT = "8080"
+		log.Println("PORT not set. Defaulting to 8080")
+	}
+
 	log.Fatal(app.Listen(":" + PORT))
 }

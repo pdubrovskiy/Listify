@@ -4,7 +4,6 @@ import { Navbar } from "./components/layouts/Navbar";
 import { GlobalStyles } from "./components/ui/global-styles";
 import { TodoList } from "./components/features/TodoList";
 
-export const BASE_URL = "http://localhost:4000/api/v1";
 function App() {
   return (
     <Box minH="100vh">
