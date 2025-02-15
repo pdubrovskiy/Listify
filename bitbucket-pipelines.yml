@@ -33,7 +33,7 @@ definitions:
           - docker
         script:
           - cd server
-          - docker build --load --platform linux/amd64 -t backend:${BITBUCKET_COMMIT} .
+          - DOCKER_BUILDKIT=0 docker build --load --platform linux/amd64 -t backend:${BITBUCKET_COMMIT} .
           - docker save backend:${BITBUCKET_COMMIT} -o backend.tar
         artifacts:
           - backend.tar
@@ -44,7 +44,7 @@ definitions:
           - docker
         script:
           - cd client
-          - docker build --load --platform linux/amd64 -t frontend:${BITBUCKET_COMMIT} .
+          - DOCKER_BUILDKIT=0 docker build --load --platform linux/amd64 -t frontend:${BITBUCKET_COMMIT} .
           - docker save frontend:${BITBUCKET_COMMIT} -o frontend.tar
         artifacts:
           - frontend.tar
