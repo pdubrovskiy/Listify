@@ -116,6 +116,20 @@ pipelines:
   #     - step: *test-backend
   #     - step: *lint-backend
   #     - step: *lint-frontend
+  custom:
+    customPipelineWithRunnerStep:
+      - step:
+          name: "Step 1"
+          runs-on:
+            - self.hosted
+            - linux.shell
+            - customlabel
+          script:
+            - echo "This step will run on a self-hosted Linux Shell runner."
+      - step:
+          name: "Step 2"
+          script:
+            - echo "This step will run on Atlassian's infrastructure as usual."
 
 clone:
   depth: 1
