@@ -1,4 +1,4 @@
-import { BASE_URL } from "@/App";
+import { BACKEND_BASE_URL } from "@/config/constants";
 import { Badge, Box, Flex, Spinner, Text } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FaCheckCircle } from "react-icons/fa";
@@ -23,7 +23,7 @@ export const TodoItem = ({ todo }: { todo: ITodo }) => {
     mutationKey: ["updateTodo"],
     mutationFn: async () => {
       try {
-        const res = await fetch(`${BASE_URL}/todos/${todo._id}`, {
+        const res = await fetch(`${BACKEND_BASE_URL}/todos/${todo._id}`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
@@ -48,7 +48,7 @@ export const TodoItem = ({ todo }: { todo: ITodo }) => {
     mutationKey: ["deleteTodo"],
     mutationFn: async () => {
       try {
-        const res = await fetch(`${BASE_URL}/todos/${todo._id}`, {
+        const res = await fetch(`${BACKEND_BASE_URL}/todos/${todo._id}`, {
           method: "DELETE",
         });
         const data = await res.json();

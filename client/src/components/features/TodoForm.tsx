@@ -1,4 +1,4 @@
-import { BASE_URL } from "@/App";
+import { BACKEND_BASE_URL } from "@/config/constants";
 import { Button, Flex, Input, Spinner } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FormEvent, useState } from "react";
@@ -16,7 +16,7 @@ export const TodoForm = () => {
       e.preventDefault();
 
       try {
-        const res = await fetch(`${BASE_URL}/todos`, {
+        const res = await fetch(`${BACKEND_BASE_URL}/todos`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ body: newTodo }),
