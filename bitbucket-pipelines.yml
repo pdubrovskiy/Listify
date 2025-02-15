@@ -43,7 +43,7 @@ definitions:
         services:
           - docker
         script:
-          - pipe: google/cloud-auth:1.0.0
+          - pipe: atlassian/google-cloud-auth-pipe:1.1.0
             variables:
               GOOGLE_CLIENT_ID: $GOOGLE_CLIENT_ID
               GOOGLE_CLIENT_SECRET: $GOOGLE_CLIENT_SECRET
@@ -78,12 +78,10 @@ pipelines:
       - step: *build-backend
       - step: *build-frontend
       - step: *deploy-to-prod
-
+      
   pull-requests:
     '**':
       - step: *test-backend
-      - step: *build-backend
-      - step: *build-frontend
 
 clone:
   depth: full
