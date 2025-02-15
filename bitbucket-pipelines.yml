@@ -33,8 +33,10 @@ definitions:
           - docker
         script:
           - cd server
-          - export DOCKER_BUILDKIT=1
-          - docker build -t backend:${BITBUCKET_COMMIT} --output=type=tar,dest=../backend.tar .
+          - export DOCKER_BUILDKIT=0
+          - docker build -t backend:${BITBUCKET_COMMIT} .
+          - cd ..
+          - docker save backend:${BITBUCKET_COMMIT} -o backend.tar
         artifacts:
           - backend.tar
 
@@ -44,8 +46,10 @@ definitions:
           - docker
         script:
           - cd client
-          - export DOCKER_BUILDKIT=1
-          - docker build -t frontend:${BITBUCKET_COMMIT} --output=type=tar,dest=../frontend.tar .
+          - export DOCKER_BUILDKIT=0
+          - docker build -t frontend:${BITBUCKET_COMMIT} .
+          - cd ..
+          - docker save frontend:${BITBUCKET_COMMIT} -o frontend.tar
         artifacts:
           - frontend.tar
 
