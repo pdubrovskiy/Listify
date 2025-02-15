@@ -43,7 +43,7 @@ definitions:
         services:
           - docker
         script:
-          - pipe: atlassian/google-cloud-auth-pipe:1.1.0
+          - pipe: atlassian/google-cloud-storage-deploy:2.0.0
             variables:
               GOOGLE_CLIENT_ID: $GOOGLE_CLIENT_ID
               GOOGLE_CLIENT_SECRET: $GOOGLE_CLIENT_SECRET
