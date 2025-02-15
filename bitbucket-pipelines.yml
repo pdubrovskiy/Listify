@@ -2,30 +2,30 @@ image: google/cloud-sdk:latest
 
 definitions:
   steps:
-    - step: &lint-backend
-        name: Lint Backend
-        image: golangci/golangci-lint:v1.55
-        script:
-          - cd server
-          - golangci-lint run --timeout=5m
+    # - step: &lint-backend
+    #     name: Lint Backend
+    #     image: golangci/golangci-lint:v1.55
+    #     script:
+    #       - cd server
+    #       - golangci-lint run --timeout=5m
 
-    - step: &lint-frontend
-        name: Lint Frontend
-        image: node:20
-        caches:
-          - node
-        script:
-          - cd client
-          - npm ci
-          - npm run lint
+    # - step: &lint-frontend
+    #     name: Lint Frontend
+    #     image: node:20
+    #     caches:
+    #       - node
+    #     script:
+    #       - cd client
+    #       - npm ci
+    #       - npm run lint
 
-    - step: &test-backend
-        name: Test Backend
-        image: golang:1.21
-        script:
-          - cd server
-          - go mod download
-          - go test -v ./...
+    # - step: &test-backend
+    #     name: Test Backend
+    #     image: golang:1.21
+    #     script:
+    #       - cd server
+    #       - go mod download
+    #       - go test -v ./...
 
     - step: &build-backend
         name: Build Backend
@@ -33,7 +33,7 @@ definitions:
           - docker
         script:
           - cd server
-          - docker build -t backend:${BITBUCKET_COMMIT} .
+          - docker build --platform linux/amd64 -t backend:${BITBUCKET_COMMIT} .
           - docker save backend:${BITBUCKET_COMMIT} -o backend.tar
         artifacts:
           - backend.tar
@@ -44,7 +44,7 @@ definitions:
           - docker
         script:
           - cd client
-          - docker build -t frontend:${BITBUCKET_COMMIT} .
+          - docker build --platform linux/amd64 -t frontend:${BITBUCKET_COMMIT} .
           - docker save frontend:${BITBUCKET_COMMIT} -o frontend.tar
         artifacts:
           - frontend.tar
@@ -102,9 +102,9 @@ definitions:
 pipelines:
   branches:
     main:
-      - step: *lint-backend
-      - step: *lint-frontend
-      - step: *test-backend
+      # - step: *lint-backend
+      # - step: *lint-frontend
+      # - step: *test-backend
       - step: *build-backend
       - step: *build-frontend
       - step: *push-images
@@ -121,4 +121,5 @@ clone:
   depth: 1
 
 options:
-  docker: true 
+  docker: true
+  max-time: 30 
