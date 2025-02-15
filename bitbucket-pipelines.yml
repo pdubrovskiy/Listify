@@ -1,0 +1,90 @@
+image: golang:1.21
+
+definitions:
+  steps:
+    - step: &test-backend
+        name: Test Backend
+        caches:
+          - go
+        script:
+          - cd server
+          - go mod tidy
+          - go mod verify
+          - go mod download
+          - go test -v ./...
+
+    - step: &build-backend
+        name: Build Backend
+        services:
+          - docker
+        script:
+          - cd server
+          - docker build -t backend:${BITBUCKET_COMMIT} -t backend:latest .
+          - docker save backend:${BITBUCKET_COMMIT} -o backend.tar
+        artifacts:
+          - backend.tar
+
+    - step: &build-frontend
+        name: Build Frontend
+        services:
+          - docker
+        script:
+          - cd client
+          - docker build -t frontend:${BITBUCKET_COMMIT} -t frontend:latest .
+          - docker save frontend:${BITBUCKET_COMMIT} -o frontend.tar
+        artifacts:
+          - frontend.tar
+
+    - step: &deploy-to-prod
+        name: Deploy to Production
+        deployment: Production
+        services:
+          - docker
+        script:
+          - pipe: atlassian/google-cloud-auth:0.8.0
+            variables:
+              GOOGLE_CLIENT_ID: $GOOGLE_CLIENT_ID
+              GOOGLE_CLIENT_SECRET: $GOOGLE_CLIENT_SECRET
+              GOOGLE_REFRESH_TOKEN: $GOOGLE_REFRESH_TOKEN
+          
+          # Load and tag images for GCR
+          - docker load -i backend.tar
+          - docker load -i frontend.tar
+          - docker tag backend:${BITBUCKET_COMMIT} ${_REGION}-docker.pkg.dev/${PROJECT_ID}/listify/backend:${BITBUCKET_COMMIT}
+          - docker tag backend:${BITBUCKET_COMMIT} ${_REGION}-docker.pkg.dev/${PROJECT_ID}/listify/backend:latest
+          - docker tag frontend:${BITBUCKET_COMMIT} ${_REGION}-docker.pkg.dev/${PROJECT_ID}/listify/frontend:${BITBUCKET_COMMIT}
+          - docker tag frontend:${BITBUCKET_COMMIT} ${_REGION}-docker.pkg.dev/${PROJECT_ID}/listify/frontend:latest
+          
+          # Push images
+          - docker push ${_REGION}-docker.pkg.dev/${PROJECT_ID}/listify/backend:${BITBUCKET_COMMIT}
+          - docker push ${_REGION}-docker.pkg.dev/${PROJECT_ID}/listify/backend:latest
+          - docker push ${_REGION}-docker.pkg.dev/${PROJECT_ID}/listify/frontend:${BITBUCKET_COMMIT}
+          - docker push ${_REGION}-docker.pkg.dev/${PROJECT_ID}/listify/frontend:latest
+          
+          # Deploy to Cloud Run
+          - gcloud run deploy listify-backend --image ${_REGION}-docker.pkg.dev/${PROJECT_ID}/listify/backend:${BITBUCKET_COMMIT} --region ${_REGION} --platform managed --allow-unauthenticated --set-env-vars MONGODB_URI=${MONGODB_URI}
+          - gcloud run deploy listify-frontend --image ${_REGION}-docker.pkg.dev/${PROJECT_ID}/listify/frontend:${BITBUCKET_COMMIT} --region ${_REGION} --platform managed --allow-unauthenticated --set-env-vars API_URL=${BACKEND_URL}
+
+  services:
+    docker:
+      memory: 2048
+
+pipelines:
+  branches:
+    main:
+      - step: *test-backend
+      - step: *build-backend
+      - step: *build-frontend
+      - step: *deploy-to-prod
+
+  pull-requests:
+    '**':
+      - step: *test-backend
+      - step: *build-backend
+      - step: *build-frontend
+
+clone:
+  depth: full
+
+options:
+  docker: true 

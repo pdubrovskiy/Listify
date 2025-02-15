@@ -1,0 +1,107 @@
+steps:
+  # Download Go dependencies and run tests
+  - name: 'golang:1.21'
+    entrypoint: /bin/sh
+    args:
+      - -c
+      - |
+        cd server && 
+        go mod tidy &&
+        go mod verify &&
+        go mod download && 
+        go test -v ./...
+    env:
+      - 'GO111MODULE=on'
+      - 'CGO_ENABLED=0'
+      - 'GOPATH=/go'
+      - 'MONGODB_URI=mongodb://localhost:27017/listify'
+
+  # Build backend image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/listify/backend:${SHORT_SHA}'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/listify/backend:latest'
+      - '-f'
+      - 'server/Dockerfile'
+      - './server'
+
+  # Build frontend image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/listify/frontend:${SHORT_SHA}'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/listify/frontend:latest'
+      - '-f'
+      - 'client/Dockerfile'
+      - './client'
+
+  # Push backend images
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/listify/backend:${SHORT_SHA}'
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/listify/backend:latest'
+
+  # Push frontend images
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/listify/frontend:${SHORT_SHA}'
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/listify/frontend:latest'
+
+  # Deploy backend to Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'listify-backend'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/listify/backend:${SHORT_SHA}'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'MONGODB_URI=${_MONGODB_URI}'
+
+  # Deploy frontend to Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'listify-frontend'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/listify/frontend:${SHORT_SHA}'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'API_URL=${_BACKEND_URL}'
+
+substitutions:
+  _REGION: europe-west1
+  _MONGODB_URI: mongodb://localhost:27017/listify
+  _BACKEND_URL: https://listify-backend-xxxxx-ew.a.run.app
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+images:
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/listify/backend:${SHORT_SHA}'
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/listify/backend:latest'
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/listify/frontend:${SHORT_SHA}'
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/listify/frontend:latest' 
