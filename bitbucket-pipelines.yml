@@ -81,10 +81,9 @@ definitions:
           - gcloud auth activate-service-account --key-file=/tmp/key.json
           
           # Deploy backend
-          - gcloud run deploy listify-backend --image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/listify/backend:${BITBUCKET_COMMIT} --region=${_REGION} --platform=managed --allow-unauthenticated --set-env-vars=MONGODB_URI=${MONGODB_URI}
-          
+          - gcloud run deploy listify-backend --image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/listify/backend:${BITBUCKET_COMMIT} --region=${_REGION} --platform=managed --allow-unauthenticated --set-env-vars=MONGODB_URI=${MONGODB_URI} --project=${PROJECT_ID}
           # Deploy frontend
-          - gcloud run deploy listify-frontend --image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/listify/frontend:${BITBUCKET_COMMIT} --region=${_REGION} --platform=managed --allow-unauthenticated --set-env-vars=API_URL=${BACKEND_URL}
+          - gcloud run deploy listify-frontend --image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/listify/frontend:${BITBUCKET_COMMIT} --region=${_REGION} --platform=managed --allow-unauthenticated --set-env-vars=API_URL=${BACKEND_URL} --project=${PROJECT_ID}
 
   services:
     docker:
