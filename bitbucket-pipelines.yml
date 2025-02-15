@@ -1,6 +1,8 @@
 image: golang:1.21
 
 definitions:
+  caches:
+    go: ~/.go-cache
   steps:
     - step: &test-backend
         name: Test Backend
