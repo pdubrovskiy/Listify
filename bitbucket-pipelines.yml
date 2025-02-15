@@ -33,7 +33,9 @@ definitions:
           - docker
         script:
           - cd server
-          - docker build --platform linux/amd64 -t backend:${BITBUCKET_COMMIT} .
+          - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          - docker buildx create --use
+          - docker buildx build --platform linux/amd64 --load -t backend:${BITBUCKET_COMMIT} .
           - docker save backend:${BITBUCKET_COMMIT} -o backend.tar
         artifacts:
           - backend.tar
@@ -44,7 +46,9 @@ definitions:
           - docker
         script:
           - cd client
-          - docker build --platform linux/amd64 -t frontend:${BITBUCKET_COMMIT} .
+          - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          - docker buildx create --use
+          - docker buildx build --platform linux/amd64 --load -t frontend:${BITBUCKET_COMMIT} .
           - docker save frontend:${BITBUCKET_COMMIT} -o frontend.tar
         artifacts:
           - frontend.tar
