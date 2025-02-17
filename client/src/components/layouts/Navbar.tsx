@@ -14,6 +14,14 @@ export const Navbar = () => {
     }
   };
 
+  const toggleStatistics = () => {
+    if (location.pathname === "/statistics") {
+      navigate("/");
+    } else {
+      navigate("/statistics");
+    }
+  };
+
   return (
     <Box
       as="nav"
@@ -69,7 +77,7 @@ export const Navbar = () => {
             </IconButton>
             <IconButton
               aria-label="View statistics"
-              onClick={() => navigate("/statistics")}
+              onClick={toggleStatistics}
               variant="ghost"
               color={
                 location.pathname === "/statistics" ? "blue.500" : "gray.600"
