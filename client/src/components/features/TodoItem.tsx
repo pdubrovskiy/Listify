@@ -1,23 +1,11 @@
 import { BACKEND_BASE_URL } from "@/config/constants";
-import { Badge, Box, Flex, Spinner, Text } from "@chakra-ui/react";
+import { Box, Flex, Spinner, Text } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import { useColorModeValue } from "../ui/color-mode";
 import { ITodo } from "./interfaces/todo.interface";
 
 export const TodoItem = ({ todo }: { todo: ITodo }) => {
-  const bgColor = useColorModeValue("gray.50", "whiteAlpha.50");
-  const bgHoverColor = useColorModeValue("gray.100", "whiteAlpha.100");
-  const borderColor = useColorModeValue("gray.200", "whiteAlpha.200");
-  const borderHoverColor = useColorModeValue("gray.300", "whiteAlpha.300");
-  const textColor = useColorModeValue("gray.800", "white");
-  const completedTextColor = useColorModeValue("green.600", "green.200");
-  const completedColor = useColorModeValue("green.500", "green.400");
-  const completedHoverColor = useColorModeValue("green.600", "green.300");
-  const uncompleteColor = useColorModeValue("gray.300", "gray.600");
-  const uncompleteHoverColor = useColorModeValue("gray.400", "gray.500");
-
   const queryClient = useQueryClient();
   const { mutate: updateTodo, isPending: isUpdating } = useMutation({
     mutationKey: ["updateTodo"],
@@ -63,68 +51,51 @@ export const TodoItem = ({ todo }: { todo: ITodo }) => {
   });
 
   return (
-    <Flex gap={3} alignItems="center">
-      <Flex
+    <Flex
+      p={4}
+      bg="gray.50"
+      borderRadius="lg"
+      alignItems="center"
+      gap={4}
+      _hover={{
+        bg: "gray.100",
+      }}
+      borderWidth="1px"
+      borderColor="gray.200"
+    >
+      <Box
+        as="button"
+        onClick={() => !isUpdating && updateTodo()}
+        _disabled={{ opacity: 0.5, cursor: "not-allowed" }}
+        color={todo.completed ? "green.500" : "gray.300"}
+        _hover={{
+          color: todo.completed ? "green.600" : "gray.400",
+        }}
+      >
+        {isUpdating ? <Spinner size="sm" /> : <FaCheckCircle size={24} />}
+      </Box>
+      <Text
         flex={1}
-        alignItems="center"
-        bg={bgColor}
-        border="1px"
-        borderColor={borderColor}
-        p={3}
-        borderRadius="xl"
-        justifyContent="space-between"
-        _hover={{ borderColor: borderHoverColor, bg: bgHoverColor }}
+        color="gray.800"
+        textDecoration={todo.completed ? "line-through" : "none"}
+        opacity={todo.completed ? 0.5 : 1}
+      >
+        {todo.body}
+      </Text>
+      <Box
+        as="button"
+        onClick={() => !isDeleting && deleteTodo()}
+        _disabled={{ opacity: 0.5, cursor: "not-allowed" }}
+        color="red.500"
+        cursor="pointer"
+        _hover={{
+          color: "red.600",
+          transform: "scale(1.1)",
+        }}
         transition="all 0.2s"
       >
-        <Text
-          color={todo.completed ? completedTextColor : textColor}
-          textDecoration={todo.completed ? "line-through" : "none"}
-          fontSize="md"
-          fontWeight="medium"
-        >
-          {todo.body}
-        </Text>
-        {todo.completed && (
-          <Badge ml="3" colorScheme="green" variant="subtle">
-            Done
-          </Badge>
-        )}
-        {!todo.completed && (
-          <Badge ml="3" colorScheme="yellow" variant="subtle">
-            In Progress
-          </Badge>
-        )}
-      </Flex>
-      <Flex gap={2} alignItems="center">
-        <Box
-          color={todo.completed ? completedColor : uncompleteColor}
-          cursor="pointer"
-          _hover={{
-            color: todo.completed ? completedHoverColor : uncompleteHoverColor,
-            transform: "scale(1.1)",
-          }}
-          transition="all 0.2s"
-          onClick={() => updateTodo()}
-        >
-          {isUpdating ? <Spinner size={"sm"} /> : <FaCheckCircle size={22} />}
-        </Box>
-        <Box
-          color={useColorModeValue("red.500", "red.400")}
-          cursor="pointer"
-          _hover={{
-            color: useColorModeValue("red.600", "red.300"),
-            transform: "scale(1.1)",
-          }}
-          transition="all 0.2s"
-          onClick={() => deleteTodo()}
-        >
-          {isDeleting ? (
-            <Spinner size={"sm"}></Spinner>
-          ) : (
-            <MdDelete size={26} />
-          )}
-        </Box>
-      </Flex>
+        {isDeleting ? <Spinner size="sm" /> : <MdDelete size={26} />}
+      </Box>
     </Flex>
   );
 };

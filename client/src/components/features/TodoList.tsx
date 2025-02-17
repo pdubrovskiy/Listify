@@ -1,29 +1,15 @@
 import { BACKEND_BASE_URL } from "@/config/constants";
-import {
-  Box,
-  Container,
-  Flex,
-  Heading,
-  Spinner,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
+import { Box, Container, Flex, Heading, Spinner, Text } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
-import { useColorModeValue } from "../ui/color-mode";
 import { ITodo } from "./interfaces/todo.interface";
 import { TodoItem } from "./TodoItem";
+import React from "react";
 
 interface TodoListProps {
   selectedDate: string;
 }
 
 export const TodoList = ({ selectedDate }: TodoListProps) => {
-  const headingColor = useColorModeValue("black", "white");
-  const emptyStateColor = useColorModeValue("gray.600", "whiteAlpha.700");
-  const spinnerColor = useColorModeValue("purple.600", "purple.500");
-  const dividerColor = useColorModeValue("gray.300", "whiteAlpha.500");
-
   const { data: todos, isLoading } = useQuery<Array<ITodo>>({
     queryKey: ["todos", selectedDate],
     queryFn: async () => {
@@ -55,52 +41,34 @@ export const TodoList = ({ selectedDate }: TodoListProps) => {
     day: "numeric",
   });
 
+  if (isLoading) {
+    return (
+      <Flex justify="center" align="center" minH="200px">
+        <Spinner size="xl" color="purple.600" />
+      </Flex>
+    );
+  }
+
   return (
-    <Container maxW="868px" py={8}>
-      <Heading
-        as="h1"
-        fontSize={{ base: "2xl", md: "4xl" }}
-        fontWeight="semibold"
-        textAlign="center"
-        mb={8}
-        color={headingColor}
-        letterSpacing="wide"
-      >
-        Tasks for {formattedDate}:
-      </Heading>
-
-      {isLoading && (
-        <Flex justifyContent="center" my={8}>
-          <Spinner size="xl" color={spinnerColor} />
+    <Container maxW="800px" py={8}>
+      <Flex direction="column" gap={6}>
+        <Box>
+          <Heading size="lg" color="black" mb={2}>
+            {formattedDate}
+          </Heading>
+          {sortedTodos?.length === 0 && (
+            <Text color="gray.600">No tasks for this day</Text>
+          )}
+        </Box>
+        <Flex direction="column" gap={4}>
+          {sortedTodos?.map((todo, index) => (
+            <React.Fragment key={todo._id}>
+              <TodoItem todo={todo} />
+              {index < sortedTodos.length - 1 && <Box h="1px" bg="gray.300" />}
+            </React.Fragment>
+          ))}
         </Flex>
-      )}
-
-      {!isLoading &&
-        (!todos?.length || todos?.every(({ completed }) => completed)) && (
-          <Stack align="center" gap={4} my={8}>
-            <Text
-              fontSize="xl"
-              textAlign="center"
-              color={emptyStateColor}
-              fontWeight="medium"
-            >
-              {!todos?.length
-                ? "No tasks for this day yet!"
-                : "All tasks completed! 🎉"}
-            </Text>
-          </Stack>
-        )}
-
-      <Stack gap={4}>
-        {sortedTodos?.map((todo, index) => (
-          <React.Fragment key={todo._id}>
-            <TodoItem todo={todo} />
-            {!todo.completed && sortedTodos[index + 1]?.completed && (
-              <Box as="hr" borderColor={dividerColor} opacity={0.5} />
-            )}
-          </React.Fragment>
-        ))}
-      </Stack>
+      </Flex>
     </Container>
   );
 };

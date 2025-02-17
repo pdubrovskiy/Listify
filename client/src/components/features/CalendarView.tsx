@@ -3,7 +3,6 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./calendar.css";
 import { Box, Badge, Flex, Container, Heading } from "@chakra-ui/react";
-import { useColorModeValue } from "../ui/color-mode";
 import { format } from "date-fns";
 import { ITodo } from "./interfaces/todo.interface";
 import { BACKEND_BASE_URL } from "@/config/constants";
@@ -11,10 +10,6 @@ import { useQuery } from "@tanstack/react-query";
 
 export const CalendarView = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-
-  const bg = useColorModeValue("white", "gray.800");
-  const headerColor = useColorModeValue("gray.800", "white");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
 
   const startOfMonth = new Date(
     selectedDate.getFullYear(),
@@ -83,17 +78,17 @@ export const CalendarView = () => {
   };
 
   return (
-    <Box minH="100vh" bg={bg} pt="120px">
+    <Box minH="100vh" bg="white" pt="120px">
       <Container maxW="container.xl" py={8}>
         <Box
-          bg={bg}
+          bg="white"
           borderRadius="xl"
           borderWidth="1px"
-          borderColor={borderColor}
+          borderColor="gray.200"
           p={8}
           shadow="sm"
         >
-          <Heading size="lg" mb={8} color={headerColor} textAlign="center">
+          <Heading size="lg" mb={8} color="gray.800" textAlign="center">
             Calendar View
           </Heading>
           <Calendar

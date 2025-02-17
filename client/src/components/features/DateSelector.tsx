@@ -1,5 +1,4 @@
 import { Box, Button, Flex, IconButton, Input } from "@chakra-ui/react";
-import { useColorModeValue } from "../ui/color-mode";
 import { useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
@@ -13,19 +12,6 @@ export const DateSelector = ({
   selectedDate,
 }: DateSelectorProps) => {
   const [date, setDate] = useState(selectedDate);
-
-  // Theme colors
-  const inputBg = useColorModeValue("white", "gray.800");
-  const inputBorder = useColorModeValue("gray.200", "gray.600");
-  const inputHoverBorder = useColorModeValue("gray.300", "gray.500");
-  const inputFocusBorder = useColorModeValue("gray.500", "gray.400");
-  const buttonBg = useColorModeValue("gray.50", "gray.800");
-  const buttonHoverBg = useColorModeValue("gray.100", "gray.700");
-  const buttonActiveBg = useColorModeValue("gray.200", "gray.600");
-  const iconColor = useColorModeValue("gray.600", "gray.400");
-  const iconHoverColor = useColorModeValue("gray.800", "white");
-  const textColor = useColorModeValue("gray.800", "white");
-  const calendarColor = useColorModeValue("gray.700", "gray.100");
 
   const handleDateChange = (newDate: string) => {
     setDate(newDate);
@@ -61,7 +47,7 @@ export const DateSelector = ({
         {`
           input[type="date"]::-webkit-calendar-picker-indicator {
             cursor: pointer;
-            filter: ${useColorModeValue("invert(0.3)", "invert(0.7)")};
+            filter: invert(0.3);
             opacity: 0.8;
             transition: all 0.2s;
           }
@@ -83,15 +69,15 @@ export const DateSelector = ({
           onClick={handlePrevDay}
           variant="ghost"
           size="lg"
-          color={iconColor}
+          color="gray.600"
           transition="all 0.2s"
           _hover={{
-            bg: buttonHoverBg,
-            color: iconHoverColor,
+            bg: "gray.100",
+            color: "gray.800",
             transform: "translateX(-2px)",
           }}
           _active={{
-            bg: buttonActiveBg,
+            bg: "gray.200",
             transform: "scale(0.95)",
           }}
         >
@@ -105,15 +91,15 @@ export const DateSelector = ({
             w="auto"
             textAlign="center"
             size="lg"
-            bg={inputBg}
-            color={calendarColor}
-            borderColor={inputBorder}
+            bg="white"
+            color="gray.700"
+            borderColor="gray.200"
             transition="all 0.2s"
             _hover={{
-              borderColor: inputHoverBorder,
+              borderColor: "gray.300",
             }}
             _focus={{
-              borderColor: inputFocusBorder,
+              borderColor: "gray.500",
               boxShadow: "none",
             }}
           />
@@ -121,17 +107,17 @@ export const DateSelector = ({
             onClick={handleToday}
             size="lg"
             variant="outline"
-            bg={buttonBg}
-            color={textColor}
-            borderColor={inputBorder}
+            bg="gray.50"
+            color="gray.800"
+            borderColor="gray.200"
             transition="all 0.2s"
             _hover={{
-              bg: buttonHoverBg,
-              borderColor: inputHoverBorder,
+              bg: "gray.100",
+              borderColor: "gray.300",
               transform: "translateY(-1px)",
             }}
             _active={{
-              bg: buttonActiveBg,
+              bg: "gray.200",
               transform: "translateY(0)",
             }}
           >
@@ -141,17 +127,17 @@ export const DateSelector = ({
             onClick={handleTomorrow}
             size="lg"
             variant="outline"
-            bg={buttonBg}
-            color={textColor}
-            borderColor={inputBorder}
+            bg="gray.50"
+            color="gray.800"
+            borderColor="gray.200"
             transition="all 0.2s"
             _hover={{
-              bg: buttonHoverBg,
-              borderColor: inputHoverBorder,
+              bg: "gray.100",
+              borderColor: "gray.300",
               transform: "translateY(-1px)",
             }}
             _active={{
-              bg: buttonActiveBg,
+              bg: "gray.200",
               transform: "translateY(0)",
             }}
           >
@@ -163,15 +149,15 @@ export const DateSelector = ({
           onClick={handleNextDay}
           variant="ghost"
           size="lg"
-          color={iconColor}
+          color="gray.600"
           transition="all 0.2s"
           _hover={{
-            bg: buttonHoverBg,
-            color: iconHoverColor,
+            bg: "gray.100",
+            color: "gray.800",
             transform: "translateX(2px)",
           }}
           _active={{
-            bg: buttonActiveBg,
+            bg: "gray.200",
             transform: "scale(0.95)",
           }}
         >
