@@ -1,5 +1,5 @@
 import { Box, Container, Flex, IconButton } from "@chakra-ui/react";
-import { FiCalendar } from "react-icons/fi";
+import { FiCalendar, FiBarChart2 } from "react-icons/fi";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export const Navbar = () => {
@@ -66,6 +66,28 @@ export const Navbar = () => {
               transition="all 0.2s ease"
             >
               <FiCalendar size={20} />
+            </IconButton>
+            <IconButton
+              aria-label="View statistics"
+              onClick={() => navigate("/statistics")}
+              variant="ghost"
+              color={
+                location.pathname === "/statistics" ? "blue.500" : "gray.600"
+              }
+              size="lg"
+              _hover={{
+                bg: "gray.100",
+                color:
+                  location.pathname === "/statistics" ? "blue.600" : "gray.800",
+                transform: "translateY(-1px)",
+              }}
+              _active={{
+                bg: "gray.200",
+                transform: "translateY(0)",
+              }}
+              transition="all 0.2s ease"
+            >
+              <FiBarChart2 size={20} />
             </IconButton>
           </Flex>
         </Flex>

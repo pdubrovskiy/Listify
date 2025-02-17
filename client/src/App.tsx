@@ -1,17 +1,18 @@
 import { Box, Container, Flex } from "@chakra-ui/react";
-import { useState, useEffect } from "react";
-import { TodoForm } from "./components/features/TodoForm";
-import { Navbar } from "./components/layouts/Navbar";
-import { GlobalStyles } from "./components/ui/global-styles";
-import { TodoList } from "./components/features/TodoList";
-import { DateSelector } from "./components/features/DateSelector";
-import { CalendarView } from "./components/features/CalendarView";
+import { useEffect, useState } from "react";
 import {
+  Route,
   BrowserRouter as Router,
   Routes,
-  Route,
   useSearchParams,
 } from "react-router-dom";
+import { CalendarView } from "./components/features/CalendarView";
+import { DateSelector } from "./components/features/DateSelector";
+import { StatisticsView } from "./components/features/StatisticsView";
+import { TodoForm } from "./components/features/TodoForm";
+import { TodoList } from "./components/features/TodoList";
+import { Navbar } from "./components/layouts/Navbar";
+import { GlobalStyles } from "./components/ui/global-styles";
 
 function TodoPage() {
   const [searchParams] = useSearchParams();
@@ -50,6 +51,7 @@ function App() {
         <Routes>
           <Route path="/" element={<TodoPage />} />
           <Route path="/calendar" element={<CalendarView />} />
+          <Route path="/statistics" element={<StatisticsView />} />
         </Routes>
       </Box>
     </Router>
