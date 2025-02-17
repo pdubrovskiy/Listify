@@ -5,6 +5,8 @@ import { Navbar } from "./components/layouts/Navbar";
 import { GlobalStyles } from "./components/ui/global-styles";
 import { TodoList } from "./components/features/TodoList";
 import { DateSelector } from "./components/features/DateSelector";
+import { CalendarView } from "./components/features/CalendarView";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 function App() {
   const [selectedDate, setSelectedDate] = useState(
@@ -12,20 +14,30 @@ function App() {
   );
 
   return (
-    <Box minH="100vh">
-      <GlobalStyles />
-      <Navbar />
-      <Flex w="100vw" pt="120px">
-        <Container maxW="container.xl" px={4}>
-          <DateSelector
-            selectedDate={selectedDate}
-            onDateChange={setSelectedDate}
+    <Router>
+      <Box minH="100vh">
+        <GlobalStyles />
+        <Navbar />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Flex w="100vw" pt="120px">
+                <Container maxW="container.xl" px={4}>
+                  <DateSelector
+                    selectedDate={selectedDate}
+                    onDateChange={setSelectedDate}
+                  />
+                  <TodoForm selectedDate={selectedDate} />
+                  <TodoList selectedDate={selectedDate} />
+                </Container>
+              </Flex>
+            }
           />
-          <TodoForm selectedDate={selectedDate} />
-          <TodoList selectedDate={selectedDate} />
-        </Container>
-      </Flex>
-    </Box>
+          <Route path="/calendar" element={<CalendarView />} />
+        </Routes>
+      </Box>
+    </Router>
   );
 }
 

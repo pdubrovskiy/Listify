@@ -22,9 +22,16 @@ func (h *TodoHandler) GetTodos(c *fiber.Ctx) error {
 	var todos []models.Todo
 	filter := bson.M{}
 
-	// Add date filter if provided
+	// Handle date filtering
 	if date := c.Query("date"); date != "" {
 		filter["date"] = date
+	} else if start := c.Query("start"); start != "" {
+		if end := c.Query("end"); end != "" {
+			filter["date"] = bson.M{
+				"$gte": start,
+				"$lte": end,
+			}
+		}
 	}
 
 	cursor, err := database.TodoCollection.Find(context.Background(), filter)

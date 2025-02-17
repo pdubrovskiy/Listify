@@ -1,110 +1,68 @@
-import {
-  Box,
-  Container,
-  Flex,
-  Heading,
-  IconButton,
-  Image,
-} from "@chakra-ui/react";
-import { useColorMode } from "../ui/color-mode";
-import { LuMoon, LuSun } from "react-icons/lu";
-import { keyframes } from "@emotion/react";
-
-const bounceScale = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-  70% { transform: scale(0.95); }
-  100% { transform: scale(1); }
-`;
+import { Box, Container, Flex, IconButton } from "@chakra-ui/react";
+import { useColorMode, useColorModeValue } from "../ui/color-mode";
+import { FiCalendar, FiMoon, FiSun } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 export const Navbar = () => {
-  const { toggleColorMode, colorMode } = useColorMode();
-  const bgColor = colorMode === "dark" ? "#111111" : "#ffffff";
-  const textColor = colorMode === "dark" ? "#E6E6E6" : "#080808";
-  const borderColor = colorMode === "dark" ? "gray.800" : "gray.200";
-  const hoverBg = colorMode === "dark" ? "gray.700" : "gray.100";
-  const iconColor = colorMode === "dark" ? "#E6E6E6" : "#1A1A1A";
-  const buttonBg = colorMode === "dark" ? "transparent" : "gray.100";
-  const buttonBorderColor = colorMode === "dark" ? "gray.600" : "gray.300";
+  const { colorMode, toggleColorMode } = useColorMode();
+  const navigate = useNavigate();
 
-  const logoStyle = {
-    filter: colorMode === "dark" ? "none" : "invert(1)",
-    transition: "filter 0.3s ease-in-out",
-    willChange: "filter",
-  };
+  const bg = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const iconColor = useColorModeValue("gray.600", "gray.400");
+  const iconHoverColor = useColorModeValue("gray.800", "white");
+  const iconHoverBg = useColorModeValue("gray.100", "gray.700");
 
   return (
     <Box
       as="nav"
       position="fixed"
       w="100%"
-      bg={bgColor}
-      color={textColor}
-      borderBottom="1px"
+      zIndex={10}
+      bg={bg}
+      borderBottom="1px solid"
       borderColor={borderColor}
-      zIndex={100}
-      transition="all 0.3s"
-      boxShadow={
-        colorMode === "dark"
-          ? "0 4px 20px rgba(0,0,0,0.4)"
-          : "0 2px 8px rgba(0,0,0,0.1)"
-      }
-      backdropFilter="blur(8px)"
-      backgroundColor={
-        colorMode === "dark" ? "rgba(17,17,17,0.95)" : "rgba(255,255,255,0.95)"
-      }
     >
-      <Container maxW="container.xl">
-        <Flex py={4} align="center" justify="space-between">
-          <Flex
-            align="center"
-            gap={2}
-            _hover={{ opacity: 0.8 }}
+      <Container maxW="container.xl" py={4}>
+        <Flex justify="space-between" align="center">
+          <Box
+            fontSize="2xl"
+            fontWeight="bold"
             cursor="pointer"
+            onClick={() => navigate("/")}
           >
-            <Image
-              src="/listify.svg"
-              h="32px"
-              w="32px"
-              alt="Listify logo"
-              style={logoStyle}
-              _hover={{ transform: "scale(1.05)" }}
-              transition="transform 0.3s"
-            />
-            <Heading size="md" color={textColor} transition="color 0.3s">
-              Listify
-            </Heading>
+            Listify
+          </Box>
+          <Flex gap={2}>
+            <IconButton
+              aria-label="Open calendar"
+              onClick={() => navigate("/calendar")}
+              variant="ghost"
+              color={iconColor}
+              _hover={{
+                bg: iconHoverBg,
+                color: iconHoverColor,
+              }}
+            >
+              <FiCalendar size={20} />
+            </IconButton>
+            <IconButton
+              aria-label="Toggle color mode"
+              onClick={toggleColorMode}
+              variant="ghost"
+              color={iconColor}
+              _hover={{
+                bg: iconHoverBg,
+                color: iconHoverColor,
+              }}
+            >
+              {colorMode === "dark" ? (
+                <FiSun size={20} />
+              ) : (
+                <FiMoon size={20} />
+              )}
+            </IconButton>
           </Flex>
-
-          <IconButton
-            aria-label="Toggle color mode"
-            onClick={toggleColorMode}
-            variant="ghost"
-            fontSize="20px"
-            color={iconColor}
-            bg={buttonBg}
-            border="1px solid"
-            borderColor={buttonBorderColor}
-            animation={`${bounceScale} 0.4s ease-in-out`}
-            transition="background-color 0.3s"
-            _hover={{
-              bg: hoverBg,
-              color: iconColor,
-              borderColor: colorMode === "dark" ? "gray.500" : "gray.400",
-              transform: "scale(1.05)",
-            }}
-            _active={{
-              color: iconColor,
-              bg: colorMode === "dark" ? "gray.700" : "gray.200",
-              transform: "scale(0.95)",
-            }}
-            _focus={{
-              boxShadow: "none",
-              outline: "none",
-            }}
-          >
-            {colorMode === "dark" ? <LuSun /> : <LuMoon />}
-          </IconButton>
         </Flex>
       </Container>
     </Box>
