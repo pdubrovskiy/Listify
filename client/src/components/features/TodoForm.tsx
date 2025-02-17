@@ -5,7 +5,11 @@ import { FormEvent, useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import { useColorMode } from "../ui/color-mode";
 
-export const TodoForm = () => {
+interface TodoFormProps {
+  selectedDate: string;
+}
+
+export const TodoForm = ({ selectedDate }: TodoFormProps) => {
   const [newTodo, setNewTodo] = useState("");
   const { colorMode } = useColorMode();
 
@@ -19,7 +23,12 @@ export const TodoForm = () => {
         const res = await fetch(`${BACKEND_BASE_URL}/todos`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ body: newTodo }),
+          body: JSON.stringify({
+            body: newTodo,
+            date: selectedDate,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          }),
         });
         const data = await res.json();
         if (!res.ok) {

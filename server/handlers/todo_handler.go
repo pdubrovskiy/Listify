@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/pdubrovskiy/listify/database"
@@ -19,8 +20,14 @@ func NewTodoHandler() *TodoHandler {
 
 func (h *TodoHandler) GetTodos(c *fiber.Ctx) error {
 	var todos []models.Todo
+	filter := bson.M{}
 
-	cursor, err := database.TodoCollection.Find(context.Background(), bson.M{})
+	// Add date filter if provided
+	if date := c.Query("date"); date != "" {
+		filter["date"] = date
+	}
+
+	cursor, err := database.TodoCollection.Find(context.Background(), filter)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Error fetching todos"})
 	}
@@ -48,6 +55,21 @@ func (h *TodoHandler) CreateTodo(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Todo body is required"})
 	}
 
+	if todo.Date == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "Todo date is required"})
+	}
+
+	// Validate date format
+	_, err := time.Parse("2006-01-02", todo.Date)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid date format. Use YYYY-MM-DD"})
+	}
+
+	// Set timestamps
+	currentTime := time.Now().UTC().Format(time.RFC3339)
+	todo.CreatedAt = currentTime
+	todo.UpdatedAt = currentTime
+
 	result, err := database.TodoCollection.InsertOne(context.Background(), todo)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Error creating todo"})
@@ -73,7 +95,14 @@ func (h *TodoHandler) UpdateTodo(c *fiber.Ctx) error {
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid request body"})
 	}
-	update := bson.M{"$set": bson.M{"completed": body.Completed}}
+
+	update := bson.M{
+		"$set": bson.M{
+			"completed": body.Completed,
+			"updatedAt": time.Now().UTC().Format(time.RFC3339),
+		},
+	}
+
 	result, err := database.TodoCollection.UpdateOne(
 		context.Background(),
 		bson.M{"_id": objectId},
