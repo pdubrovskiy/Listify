@@ -1,9 +1,18 @@
 import { Box, Container, Flex, IconButton } from "@chakra-ui/react";
 import { FiCalendar } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const toggleCalendar = () => {
+    if (location.pathname === "/calendar") {
+      navigate("/");
+    } else {
+      navigate("/calendar");
+    }
+  };
 
   return (
     <Box
@@ -37,14 +46,17 @@ export const Navbar = () => {
           </Box>
           <Flex gap={2}>
             <IconButton
-              aria-label="Open calendar"
-              onClick={() => navigate("/calendar")}
+              aria-label="Toggle calendar"
+              onClick={toggleCalendar}
               variant="ghost"
-              color="gray.600"
+              color={
+                location.pathname === "/calendar" ? "blue.500" : "gray.600"
+              }
               size="lg"
               _hover={{
                 bg: "gray.100",
-                color: "gray.800",
+                color:
+                  location.pathname === "/calendar" ? "blue.600" : "gray.800",
                 transform: "translateY(-1px)",
               }}
               _active={{

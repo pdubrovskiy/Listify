@@ -7,9 +7,14 @@ import { format } from "date-fns";
 import { ITodo } from "./interfaces/todo.interface";
 import { BACKEND_BASE_URL } from "@/config/constants";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+
+// Set calendar locale to English
+const locale = "en-US";
 
 export const CalendarView = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const navigate = useNavigate();
 
   const startOfMonth = new Date(
     selectedDate.getFullYear(),
@@ -89,17 +94,20 @@ export const CalendarView = () => {
           shadow="sm"
         >
           <Heading size="lg" mb={8} color="gray.800" textAlign="center">
-            Calendar View
+            Calendar
           </Heading>
           <Calendar
             onChange={(value) => {
               if (value instanceof Date) {
                 setSelectedDate(value);
+                const formattedDate = format(value, "yyyy-MM-dd");
+                navigate(`/?date=${formattedDate}`);
               }
             }}
             value={selectedDate}
             tileContent={tileContent}
             className="calendar-container"
+            locale={locale}
           />
         </Box>
       </Container>
