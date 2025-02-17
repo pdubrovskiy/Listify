@@ -2,8 +2,8 @@ export interface ITodo {
   _id: number;
   body: string;
   completed: boolean;
-  date: string; // ISO string format
-  time?: string; // Optional time in HH:mm format
+  date: string;
+  time?: string;
   createdAt: string;
   updatedAt: string;
 }

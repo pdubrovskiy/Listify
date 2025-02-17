@@ -63,7 +63,6 @@ export const TodoList = ({ selectedDate }: TodoListProps) => {
     sortedTodos.length > 0 &&
     sortedTodos.every((todo) => todo.completed);
 
-  // Find the index where completed todos start
   const completedStartIndex =
     sortedTodos?.findIndex((todo) => todo.completed) ?? -1;
 

@@ -22,7 +22,6 @@ func (h *TodoHandler) GetTodos(c *fiber.Ctx) error {
 	var todos []models.Todo
 	filter := bson.M{}
 
-	// Handle date filtering
 	if date := c.Query("date"); date != "" {
 		filter["date"] = date
 	} else if start := c.Query("start"); start != "" {
@@ -66,13 +65,11 @@ func (h *TodoHandler) CreateTodo(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Todo date is required"})
 	}
 
-	// Validate date format
 	_, err := time.Parse("2006-01-02", todo.Date)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid date format. Use YYYY-MM-DD"})
 	}
 
-	// Set timestamps
 	currentTime := time.Now().UTC().Format(time.RFC3339)
 	todo.CreatedAt = currentTime
 	todo.UpdatedAt = currentTime

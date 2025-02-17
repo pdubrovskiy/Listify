@@ -21,7 +21,6 @@ function TodoPage() {
     dateFromUrl || new Date().toISOString().split("T")[0]
   );
 
-  // Update selectedDate when URL parameter changes
   useEffect(() => {
     if (dateFromUrl) {
       setSelectedDate(dateFromUrl);
