@@ -1,4 +1,4 @@
-import { Box, Container, Flex } from "@chakra-ui/react";
+import { Box, Flex } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
   Route,
@@ -29,16 +29,14 @@ function TodoPage() {
   }, [dateFromUrl]);
 
   return (
-    <Flex w="100vw" pt="120px">
-      <Container maxW="container.xl" px={4}>
-        <DateSelector
-          selectedDate={selectedDate}
-          onDateChange={setSelectedDate}
-        />
-        <TodoForm selectedDate={selectedDate} />
-        <TodoList selectedDate={selectedDate} />
-      </Container>
-    </Flex>
+    <Box>
+      <DateSelector
+        selectedDate={selectedDate}
+        onDateChange={setSelectedDate}
+      />
+      <TodoForm selectedDate={selectedDate} />
+      <TodoList selectedDate={selectedDate} />
+    </Box>
   );
 }
 
@@ -48,11 +46,15 @@ function App() {
       <Box minH="100vh">
         <GlobalStyles />
         <Navbar />
-        <Routes>
-          <Route path="/" element={<TodoPage />} />
-          <Route path="/calendar" element={<CalendarView />} />
-          <Route path="/statistics" element={<StatisticsView />} />
-        </Routes>
+        <Flex w="100vw" justify="center" pt="120px">
+          <Box maxW="1200px" w="100%" px={4}>
+            <Routes>
+              <Route path="/" element={<TodoPage />} />
+              <Route path="/calendar" element={<CalendarView />} />
+              <Route path="/statistics" element={<StatisticsView />} />
+            </Routes>
+          </Box>
+        </Flex>
       </Box>
     </Router>
   );

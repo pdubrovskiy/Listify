@@ -1,4 +1,4 @@
-import { Box, Container, Heading, Spinner, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, Spinner, Text } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { BACKEND_BASE_URL } from "@/config/constants";
 import { ITodo } from "./interfaces/todo.interface";
@@ -91,21 +91,15 @@ export const StatisticsView = () => {
 
   if (isLoading) {
     return (
-      <Box
-        minH="100vh"
-        bg="white"
-        pt="120px"
-        display="flex"
-        justifyContent="center"
-      >
+      <Flex justify="center" align="center" minH="60vh">
         <Spinner size="xl" color="blue.500" />
-      </Box>
+      </Flex>
     );
   }
 
   return (
-    <Box minH="100vh" bg="white" pt="120px">
-      <Container maxW="container.xl" py={8}>
+    <Flex direction="column" align="center" w="100%">
+      <Box w="100%">
         <Box
           bg="white"
           borderRadius="xl"
@@ -113,28 +107,36 @@ export const StatisticsView = () => {
           borderColor="gray.200"
           p={8}
           shadow="sm"
+          mb={8}
         >
           <Heading size="lg" mb={8} color="gray.800" textAlign="center">
             Task Statistics
           </Heading>
 
-          <Box textAlign="center" mb={8}>
-            <Text fontSize="lg" color="gray.600" mb={2}>
+          <Box textAlign="center" mb={12} p={6} borderRadius="lg">
+            <Text fontSize="lg" color="gray.600" mb={4}>
               Last 30 Days Summary
             </Text>
-            <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+            <Text fontSize="3xl" fontWeight="bold" color="gray.800" mb={2}>
               {completedTasks} of {totalTasks} tasks completed
             </Text>
-            <Text fontSize="lg" color="blue.500">
+            <Text fontSize="xl" color="blue.500">
               {completionRate}% completion rate
             </Text>
           </Box>
 
-          <Box mb={8}>
-            <Text fontSize="lg" fontWeight="semibold" mb={4} color="gray.700">
+          <Box mb={12}>
+            <Text fontSize="xl" fontWeight="semibold" mb={6} color="gray.700">
               Daily Task Overview
             </Text>
-            <Box height="400px">
+            <Box
+              height="400px"
+              p={4}
+              bg="white"
+              borderRadius="lg"
+              borderWidth="1px"
+              borderColor="gray.200"
+            >
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={dailyStats}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -159,12 +161,14 @@ export const StatisticsView = () => {
                     dataKey="completed"
                     stroke="#4299E1"
                     name="Completed Tasks"
+                    strokeWidth={2}
                   />
                   <Line
                     type="monotone"
                     dataKey="total"
                     stroke="#48BB78"
                     name="Total Tasks"
+                    strokeWidth={2}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -172,10 +176,17 @@ export const StatisticsView = () => {
           </Box>
 
           <Box>
-            <Text fontSize="lg" fontWeight="semibold" mb={4} color="gray.700">
+            <Text fontSize="xl" fontWeight="semibold" mb={6} color="gray.700">
               Task Completion Status
             </Text>
-            <Box height="300px">
+            <Box
+              height="300px"
+              p={4}
+              bg="white"
+              borderRadius="lg"
+              borderWidth="1px"
+              borderColor="gray.200"
+            >
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={statusData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -190,7 +201,7 @@ export const StatisticsView = () => {
             </Box>
           </Box>
         </Box>
-      </Container>
-    </Box>
+      </Box>
+    </Flex>
   );
 };

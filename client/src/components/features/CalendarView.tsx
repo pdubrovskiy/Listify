@@ -2,7 +2,7 @@ import { useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./calendar.css";
-import { Box, Badge, Flex, Container, Heading } from "@chakra-ui/react";
+import { Box, Badge, Flex, Heading } from "@chakra-ui/react";
 import { format } from "date-fns";
 import { ITodo } from "./interfaces/todo.interface";
 import { BACKEND_BASE_URL } from "@/config/constants";
@@ -83,34 +83,22 @@ export const CalendarView = () => {
   };
 
   return (
-    <Box minH="100vh" bg="white" pt="120px">
-      <Container maxW="container.xl" py={8}>
-        <Box
-          bg="white"
-          borderRadius="xl"
-          borderWidth="1px"
-          borderColor="gray.200"
-          p={8}
-          shadow="sm"
-        >
-          <Heading size="lg" mb={8} color="gray.800" textAlign="center">
-            Calendar
-          </Heading>
-          <Calendar
-            onChange={(value) => {
-              if (value instanceof Date) {
-                setSelectedDate(value);
-                const formattedDate = format(value, "yyyy-MM-dd");
-                navigate(`/?date=${formattedDate}`);
-              }
-            }}
-            value={selectedDate}
-            tileContent={tileContent}
-            className="calendar-container"
-            locale={locale}
-          />
-        </Box>
-      </Container>
-    </Box>
+    <Flex direction="column" align="center">
+      <Heading mb={6}>Calendar View</Heading>
+      <Box className="calendar-container">
+        <Calendar
+          onChange={(value) => {
+            if (value instanceof Date) {
+              setSelectedDate(value);
+              const formattedDate = format(value, "yyyy-MM-dd");
+              navigate(`/?date=${formattedDate}`);
+            }
+          }}
+          value={selectedDate}
+          locale={locale}
+          tileContent={tileContent}
+        />
+      </Box>
+    </Flex>
   );
 };
