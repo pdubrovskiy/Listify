@@ -53,15 +53,18 @@ export const TodoItem = ({ todo }: { todo: ITodo }) => {
   return (
     <Flex
       p={4}
-      bg="gray.50"
-      borderRadius="lg"
+      bg="white"
+      borderRadius="xl"
       alignItems="center"
       gap={4}
       _hover={{
-        bg: "gray.100",
+        bg: "gray.50",
+        transform: "translateY(-1px)",
+        boxShadow: "sm",
       }}
-      borderWidth="1px"
-      borderColor="gray.200"
+      borderWidth="2px"
+      borderColor="gray.100"
+      transition="all 0.2s ease"
     >
       <Box
         as="button"
@@ -69,16 +72,24 @@ export const TodoItem = ({ todo }: { todo: ITodo }) => {
         _disabled={{ opacity: 0.5, cursor: "not-allowed" }}
         color={todo.completed ? "green.500" : "gray.300"}
         _hover={{
-          color: todo.completed ? "green.600" : "gray.400",
+          color: todo.completed ? "green.600" : "green.400",
+          transform: "scale(1.1)",
         }}
+        transition="all 0.2s ease"
       >
-        {isUpdating ? <Spinner size="sm" /> : <FaCheckCircle size={24} />}
+        {isUpdating ? (
+          <Spinner size="sm" color="blue.500" />
+        ) : (
+          <FaCheckCircle size={24} />
+        )}
       </Box>
       <Text
         flex={1}
         color="gray.800"
+        fontSize="lg"
         textDecoration={todo.completed ? "line-through" : "none"}
         opacity={todo.completed ? 0.5 : 1}
+        transition="all 0.2s ease"
       >
         {todo.body}
       </Text>
@@ -86,15 +97,19 @@ export const TodoItem = ({ todo }: { todo: ITodo }) => {
         as="button"
         onClick={() => !isDeleting && deleteTodo()}
         _disabled={{ opacity: 0.5, cursor: "not-allowed" }}
-        color="red.500"
+        color="red.400"
         cursor="pointer"
         _hover={{
-          color: "red.600",
+          color: "red.500",
           transform: "scale(1.1)",
         }}
-        transition="all 0.2s"
+        transition="all 0.2s ease"
       >
-        {isDeleting ? <Spinner size="sm" /> : <MdDelete size={26} />}
+        {isDeleting ? (
+          <Spinner size="sm" color="red.500" />
+        ) : (
+          <MdDelete size={26} />
+        )}
       </Box>
     </Flex>
   );

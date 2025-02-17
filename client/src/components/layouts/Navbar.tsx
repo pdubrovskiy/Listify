@@ -13,7 +13,11 @@ export const Navbar = () => {
       zIndex={10}
       bg="white"
       borderBottom="1px solid"
-      borderColor="gray.200"
+      borderColor="gray.100"
+      backdropFilter="blur(10px)"
+      backgroundColor="rgba(255, 255, 255, 0.9)"
+      boxShadow="0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)"
+      transition="all 0.3s ease"
     >
       <Container maxW="container.xl" py={4}>
         <Flex justify="space-between" align="center">
@@ -22,6 +26,12 @@ export const Navbar = () => {
             fontWeight="bold"
             cursor="pointer"
             onClick={() => navigate("/")}
+            color="gray.800"
+            _hover={{
+              color: "gray.900",
+              transform: "translateY(-1px)",
+            }}
+            transition="all 0.2s ease"
           >
             Listify
           </Box>
@@ -31,10 +41,17 @@ export const Navbar = () => {
               onClick={() => navigate("/calendar")}
               variant="ghost"
               color="gray.600"
+              size="lg"
               _hover={{
                 bg: "gray.100",
                 color: "gray.800",
+                transform: "translateY(-1px)",
               }}
+              _active={{
+                bg: "gray.200",
+                transform: "translateY(0)",
+              }}
+              transition="all 0.2s ease"
             >
               <FiCalendar size={20} />
             </IconButton>

@@ -56,35 +56,44 @@ export const TodoForm = ({ selectedDate }: TodoFormProps) => {
           bg="white"
           color="gray.800"
           _placeholder={{
-            color: "gray.500",
+            color: "gray.400",
           }}
-          border="1px solid"
+          border="2px solid"
           borderColor="gray.200"
+          borderRadius="lg"
           _hover={{
-            borderColor: "gray.300",
+            borderColor: "blue.200",
           }}
           _focus={{
-            borderColor: "gray.500",
-            boxShadow: "none",
+            borderColor: "blue.400",
+            boxShadow: "0 0 0 1px rgba(66, 153, 225, 0.6)",
           }}
+          transition="all 0.2s ease"
         />
         <Button
           type="submit"
           size="lg"
           minW="100px"
-          bg="gray.900"
+          bg="blue.500"
           color="white"
+          borderRadius="lg"
           _hover={{
-            bg: "gray.800",
-            transform: "scale(1.02)",
+            bg: "blue.600",
+            transform: "translateY(-2px)",
+            boxShadow: "lg",
           }}
           _active={{
-            transform: "scale(.97)",
-            bg: "black",
+            transform: "translateY(0)",
+            bg: "blue.700",
           }}
           disabled={!newTodo.trim()}
+          transition="all 0.2s ease"
         >
-          {isCreating ? <Spinner size="sm" /> : <IoMdAdd size={24} />}
+          {isCreating ? (
+            <Spinner size="sm" color="white" />
+          ) : (
+            <IoMdAdd size={24} />
+          )}
         </Button>
       </Flex>
     </form>
