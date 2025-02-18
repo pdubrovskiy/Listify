@@ -1,6 +1,6 @@
 # Listify 📝
 
-A modern, full-stack todo application built with Go Fiber and React, featuring a clean UI and real-time updates.
+A modern, full-stack todo application built with Go Fiber and React, featuring a clean UI, real-time updates, and secure configuration management. Deployed on Google Cloud Run with CI/CD through Bitbucket Pipelines.
 
 ## 🔗 Links
 
