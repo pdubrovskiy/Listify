@@ -12,7 +12,7 @@ import {
 import { StatusData } from "./types";
 
 interface CompletionStatusChartProps {
-  statusData: StatusData[];
+  statusData: Array<StatusData>;
 }
 
 export const CompletionStatusChart = ({

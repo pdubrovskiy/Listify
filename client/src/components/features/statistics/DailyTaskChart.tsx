@@ -1,18 +1,18 @@
 import { Box, Text } from "@chakra-ui/react";
 import {
-  LineChart,
+  CartesianGrid,
+  Legend,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
 } from "recharts";
 import { DailyStatsData } from "./types";
 
 interface DailyTaskChartProps {
-  dailyStats: DailyStatsData[];
+  dailyStats: Array<DailyStatsData>;
 }
 
 export const DailyTaskChart = ({ dailyStats }: DailyTaskChartProps) => (

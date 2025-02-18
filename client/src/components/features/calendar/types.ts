@@ -1,10 +1,10 @@
-import { ITodo } from "../interfaces/todo.interface";
+import { Todo } from "../interfaces/todo.interface";
 
 export interface CalendarTileProps {
   date: Date;
-  todos: ITodo[];
+  todos: Array<Todo>;
 }
 
 export interface TodosByDate {
-  [date: string]: ITodo[];
+  [date: string]: Array<Todo>;
 }

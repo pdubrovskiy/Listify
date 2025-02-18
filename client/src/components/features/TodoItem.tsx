@@ -3,9 +3,9 @@ import { Box, Flex, Spinner, Text } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
-import { ITodo } from "./interfaces/todo.interface";
+import { Todo } from "./interfaces/todo.interface";
 
-export const TodoItem = ({ todo }: { todo: ITodo }) => {
+export const TodoItem = ({ todo }: { todo: Todo }) => {
   const queryClient = useQueryClient();
   const { mutate: updateTodo, isPending: isUpdating } = useMutation({
     mutationKey: ["updateTodo"],

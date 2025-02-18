@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { BACKEND_BASE_URL } from "@/config/constants";
-import { ITodo } from "../interfaces/todo.interface";
+import { Todo } from "../interfaces/todo.interface";
 
 export const useMonthTodos = (startOfMonth: string, endOfMonth: string) => {
-  return useQuery<Array<ITodo>>({
+  return useQuery<Array<Todo>>({
     queryKey: ["todos", startOfMonth, endOfMonth],
     queryFn: async () => {
       const res = await fetch(

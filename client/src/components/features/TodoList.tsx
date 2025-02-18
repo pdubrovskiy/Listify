@@ -9,7 +9,7 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import { ITodo } from "./interfaces/todo.interface";
+import { Todo } from "./interfaces/todo.interface";
 import { TodoItem } from "./TodoItem";
 import React from "react";
 import { FiCheckCircle, FiInbox } from "react-icons/fi";
@@ -19,7 +19,7 @@ interface TodoListProps {
 }
 
 export const TodoList = ({ selectedDate }: TodoListProps) => {
-  const { data: todos, isLoading } = useQuery<Array<ITodo>>({
+  const { data: todos, isLoading } = useQuery<Array<Todo>>({
     queryKey: ["todos", selectedDate],
     queryFn: async () => {
       try {

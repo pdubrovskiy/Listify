@@ -1,8 +1,12 @@
-import { ITodo } from "../interfaces/todo.interface";
+import { Todo } from "../interfaces/todo.interface";
 import { DailyStatsData, StatusData } from "./types";
 
-export const calculateDailyStats = (todos: ITodo[]): DailyStatsData[] => {
-  if (!todos) return [];
+export const calculateDailyStats = (
+  todos: Array<Todo>
+): Array<DailyStatsData> => {
+  if (!todos) {
+    return [];
+  }
 
   const stats = new Map();
   const today = new Date();
@@ -33,7 +37,7 @@ export const calculateDailyStats = (todos: ITodo[]): DailyStatsData[] => {
 export const calculateStatusData = (
   totalTasks: number,
   completedTasks: number
-): StatusData[] => {
+): Array<StatusData> => {
   return [
     {
       name: "Tasks",

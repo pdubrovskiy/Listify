@@ -1,7 +1,9 @@
-import { ITodo } from "../interfaces/todo.interface";
+import { Todo } from "../interfaces/todo.interface";
 import { TodosByDate } from "./types";
 
-export const groupTodosByDate = (todos: ITodo[] | undefined): TodosByDate => {
+export const groupTodosByDate = (
+  todos: Array<Todo> | undefined
+): TodosByDate => {
   if (!todos) return {};
 
   return todos.reduce((acc, todo) => {
