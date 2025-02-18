@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http/httptest"
@@ -75,6 +76,7 @@ func setupTestApp(mc database.Collection) *fiber.App {
 func TestGetTodos(t *testing.T) {
 	tests := []struct {
 		name           string
+		queryParams    string
 		mockData       []models.Todo
 		mockError      error
 		cursorError    error
@@ -95,9 +97,49 @@ func TestGetTodos(t *testing.T) {
 					ID:        primitive.NewObjectID(),
 					Body:      "Test todo",
 					Completed: false,
+					Date:      "2024-03-20",
 				},
 			},
 			expectedStatus: 200,
+		},
+		{
+			name:        "Success - Filter by date",
+			queryParams: "?date=2024-03-20",
+			mockData: []models.Todo{
+				{
+					ID:        primitive.NewObjectID(),
+					Body:      "Test todo",
+					Completed: false,
+					Date:      "2024-03-20",
+				},
+			},
+			expectedStatus: 200,
+		},
+		{
+			name:        "Success - Filter by date range",
+			queryParams: "?start=2024-03-20&end=2024-03-21",
+			mockData: []models.Todo{
+				{
+					ID:        primitive.NewObjectID(),
+					Body:      "Test todo 1",
+					Completed: false,
+					Date:      "2024-03-20",
+				},
+				{
+					ID:        primitive.NewObjectID(),
+					Body:      "Test todo 2",
+					Completed: false,
+					Date:      "2024-03-21",
+				},
+			},
+			expectedStatus: 200,
+		},
+		{
+			name:           "Success - Start date without end date",
+			queryParams:    "?start=2024-03-20",
+			mockData:       []models.Todo{},
+			expectedStatus: 200,
+			expectedBody:   "[]",
 		},
 		{
 			name:           "Database Find Error",
@@ -131,7 +173,7 @@ func TestGetTodos(t *testing.T) {
 			}
 
 			app := setupTestApp(mc)
-			req := httptest.NewRequest("GET", "/api/v1/todos", nil)
+			req := httptest.NewRequest("GET", "/api/v1/todos"+tt.queryParams, nil)
 			resp, err := app.Test(req)
 
 			assert.NoError(t, err)
@@ -148,6 +190,7 @@ func TestGetTodos(t *testing.T) {
 }
 
 func TestCreateTodo(t *testing.T) {
+	validID := primitive.NewObjectID()
 	tests := []struct {
 		name           string
 		input          string
@@ -159,8 +202,8 @@ func TestCreateTodo(t *testing.T) {
 	}{
 		{
 			name:           "Success",
-			input:          `{"body":"Test todo"}`,
-			mockID:         primitive.NewObjectID(),
+			input:          `{"body":"Test todo","date":"2024-03-20"}`,
+			mockID:         validID,
 			expectedStatus: 201,
 		},
 		{
@@ -171,20 +214,44 @@ func TestCreateTodo(t *testing.T) {
 		},
 		{
 			name:           "Empty todo body",
-			input:          `{"body":""}`,
+			input:          `{"body":"","date":"2024-03-20"}`,
 			expectedStatus: 400,
 			expectedBody:   `{"error":"Todo body is required"}`,
 		},
 		{
-			name:           "Database Error",
+			name:           "Missing todo body",
+			input:          `{"date":"2024-03-20"}`,
+			expectedStatus: 400,
+			expectedBody:   `{"error":"Todo body is required"}`,
+		},
+		{
+			name:           "Missing date",
 			input:          `{"body":"Test todo"}`,
+			expectedStatus: 400,
+			expectedBody:   `{"error":"Todo date is required"}`,
+		},
+		{
+			name:           "Empty date",
+			input:          `{"body":"Test todo","date":""}`,
+			expectedStatus: 400,
+			expectedBody:   `{"error":"Todo date is required"}`,
+		},
+		{
+			name:           "Invalid date format",
+			input:          `{"body":"Test todo","date":"20-03-2024"}`,
+			expectedStatus: 400,
+			expectedBody:   `{"error":"Invalid date format. Use YYYY-MM-DD"}`,
+		},
+		{
+			name:           "Database Error",
+			input:          `{"body":"Test todo","date":"2024-03-20"}`,
 			mockError:      errors.New("database error"),
 			expectedStatus: 500,
 			expectedBody:   `{"error":"Error creating todo"}`,
 		},
 		{
 			name:           "Nil Result",
-			input:          `{"body":"Test todo"}`,
+			input:          `{"body":"Test todo","date":"2024-03-20"}`,
 			mockNilResult:  true,
 			expectedStatus: 201,
 		},
@@ -217,6 +284,18 @@ func TestCreateTodo(t *testing.T) {
 				body, err = io.ReadAll(resp.Body)
 				assert.NoError(t, err)
 				assert.JSONEq(t, tt.expectedBody, string(body))
+			} else if tt.expectedStatus == 201 {
+				var body []byte
+				body, err = io.ReadAll(resp.Body)
+				assert.NoError(t, err)
+
+				var todo models.Todo
+				err = json.Unmarshal(body, &todo)
+				assert.NoError(t, err)
+
+				assert.NotEmpty(t, todo.CreatedAt)
+				assert.NotEmpty(t, todo.UpdatedAt)
+				assert.Equal(t, todo.CreatedAt, todo.UpdatedAt)
 			}
 		})
 	}
@@ -422,4 +501,10 @@ func TestDeleteTodo(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestNewTodoHandler(t *testing.T) {
+	handler := NewTodoHandler()
+	assert.NotNil(t, handler)
+	assert.IsType(t, &TodoHandler{}, handler)
 }
