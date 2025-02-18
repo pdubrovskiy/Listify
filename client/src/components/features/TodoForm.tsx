@@ -1,38 +1,46 @@
 import { BACKEND_BASE_URL } from "@/config/constants";
 import { Button, Flex, Input, Spinner } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import { IoMdAdd } from "react-icons/io";
-import { useColorMode } from "../ui/color-mode";
 
-export const TodoForm = () => {
+interface TodoFormProps {
+  selectedDate: string;
+}
+
+export const TodoForm = ({ selectedDate }: TodoFormProps) => {
   const [newTodo, setNewTodo] = useState("");
-  const { colorMode } = useColorMode();
-
   const queryClient = useQueryClient();
+
   const { mutate: createTodo, isPending: isCreating } = useMutation({
     mutationKey: ["createTodo"],
-    mutationFn: async (e: FormEvent<HTMLFormElement>) => {
+    mutationFn: async (e: React.FormEvent) => {
       e.preventDefault();
-
       try {
         const res = await fetch(`${BACKEND_BASE_URL}/todos`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ body: newTodo }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            body: newTodo,
+            date: selectedDate,
+          }),
         });
         const data = await res.json();
+
         if (!res.ok) {
           throw new Error(data.message || "Something went wrong");
         }
-        setNewTodo("");
 
-        return data;
+        setNewTodo("");
       } catch (err) {
         console.log(err);
       }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
   });
 
   return (
@@ -45,38 +53,47 @@ export const TodoForm = () => {
           autoFocus
           placeholder="Add a new task..."
           size="lg"
-          bg={colorMode === "dark" ? "gray.800" : "white"}
-          color={colorMode === "dark" ? "white" : "gray.800"}
+          bg="white"
+          color="gray.800"
           _placeholder={{
-            color: colorMode === "dark" ? "gray.400" : "gray.500",
+            color: "gray.400",
           }}
-          border="1px solid"
-          borderColor={colorMode === "dark" ? "gray.600" : "gray.200"}
+          border="2px solid"
+          borderColor="gray.200"
+          borderRadius="lg"
           _hover={{
-            borderColor: colorMode === "dark" ? "gray.500" : "gray.300",
+            borderColor: "blue.200",
           }}
           _focus={{
-            borderColor: colorMode === "dark" ? "gray.300" : "gray.500",
-            boxShadow: "none",
+            borderColor: "blue.400",
+            boxShadow: "0 0 0 1px rgba(66, 153, 225, 0.6)",
           }}
+          transition="all 0.2s ease"
         />
         <Button
           type="submit"
           size="lg"
           minW="100px"
-          bg={colorMode === "dark" ? "gray.800" : "gray.900"}
+          bg="blue.500"
           color="white"
+          borderRadius="lg"
           _hover={{
-            bg: colorMode === "dark" ? "gray.700" : "gray.800",
-            transform: "scale(1.02)",
+            bg: "blue.600",
+            transform: "translateY(-2px)",
+            boxShadow: "lg",
           }}
           _active={{
-            transform: "scale(.97)",
-            bg: colorMode === "dark" ? "gray.900" : "black",
+            transform: "translateY(0)",
+            bg: "blue.700",
           }}
           disabled={!newTodo.trim()}
+          transition="all 0.2s ease"
         >
-          {isCreating ? <Spinner size="sm" /> : <IoMdAdd size={24} />}
+          {isCreating ? (
+            <Spinner size="sm" color="white" />
+          ) : (
+            <IoMdAdd size={24} />
+          )}
         </Button>
       </Flex>
     </form>

@@ -5,27 +5,27 @@ import {
   Flex,
   Heading,
   Spinner,
-  Stack,
   Text,
+  Icon,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
-import { useColorModeValue } from "../ui/color-mode";
-import { ITodo } from "./interfaces/todo.interface";
+import { Todo } from "./interfaces/todo.interface";
 import { TodoItem } from "./TodoItem";
+import React from "react";
+import { FiCheckCircle, FiInbox } from "react-icons/fi";
 
-export const TodoList = () => {
-  const headingColor = useColorModeValue("black", "white");
-  const emptyStateColor = useColorModeValue("gray.600", "whiteAlpha.700");
-  const spinnerColor = useColorModeValue("purple.600", "purple.500");
-  const dividerColor = useColorModeValue("gray.300", "whiteAlpha.500");
+interface TodoListProps {
+  selectedDate: string;
+}
 
-  const { data: todos, isLoading } = useQuery<Array<ITodo>>({
-    queryKey: ["todos"],
-
+export const TodoList = ({ selectedDate }: TodoListProps) => {
+  const { data: todos, isLoading } = useQuery<Array<Todo>>({
+    queryKey: ["todos", selectedDate],
     queryFn: async () => {
       try {
-        const res = await fetch(`${BACKEND_BASE_URL}/todos`);
+        const res = await fetch(
+          `${BACKEND_BASE_URL}/todos?date=${selectedDate}`
+        );
         const data = await res.json();
 
         if (!res.ok) {
@@ -38,53 +38,105 @@ export const TodoList = () => {
       }
     },
   });
+
   const sortedTodos = todos?.sort(
     (a, b) => Number(a.completed) - Number(b.completed)
   );
 
+  const formattedDate = new Date(selectedDate).toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  if (isLoading) {
+    return (
+      <Flex justify="center" align="center" minH="200px">
+        <Spinner size="xl" color="purple.600" />
+      </Flex>
+    );
+  }
+
+  const allTasksCompleted =
+    sortedTodos &&
+    sortedTodos.length > 0 &&
+    sortedTodos.every((todo) => todo.completed);
+
+  const completedStartIndex =
+    sortedTodos?.findIndex((todo) => todo.completed) ?? -1;
+
   return (
-    <Container maxW="868px" py={8}>
-      <Heading
-        as="h1"
-        fontSize={{ base: "2xl", md: "4xl" }}
-        fontWeight="semibold"
-        textAlign="center"
-        mb={8}
-        color={headingColor}
-        letterSpacing="wide"
-      >
-        Today's Tasks:
-      </Heading>
-
-      {isLoading && (
-        <Flex justifyContent="center" my={8}>
-          <Spinner size="xl" color={spinnerColor} />
+    <Container maxW="800px" py={8}>
+      <Flex direction="column" gap={6}>
+        <Box>
+          <Heading size="lg" color="black" mb={2}>
+            {formattedDate}
+          </Heading>
+        </Box>
+        <Flex direction="column" gap={4}>
+          {sortedTodos?.length === 0 ? (
+            <Flex
+              direction="column"
+              align="center"
+              py={8}
+              px={4}
+              bg="gray.50"
+              borderRadius="xl"
+              border="2px dashed"
+              borderColor="gray.200"
+              color="gray.600"
+              gap={3}
+            >
+              <Icon as={FiInbox} boxSize={10} />
+              <Text fontSize="lg" fontWeight="medium">
+                No tasks for today
+              </Text>
+              <Text fontSize="md" color="gray.500">
+                Add your first task to get started
+              </Text>
+            </Flex>
+          ) : (
+            <>
+              {allTasksCompleted && (
+                <Flex
+                  direction="column"
+                  align="center"
+                  py={6}
+                  px={4}
+                  bg="green.50"
+                  borderRadius="xl"
+                  border="2px solid"
+                  borderColor="green.100"
+                  color="green.700"
+                  gap={3}
+                  mb={4}
+                >
+                  <Icon as={FiCheckCircle} boxSize={8} />
+                  <Text fontSize="lg" fontWeight="medium">
+                    Great job! All tasks completed
+                  </Text>
+                </Flex>
+              )}
+              {sortedTodos?.map((todo, index) => (
+                <React.Fragment key={todo._id}>
+                  <TodoItem todo={todo} />
+                  {completedStartIndex > 0 &&
+                    index === completedStartIndex - 1 && (
+                      <Box
+                        h="2px"
+                        bg="gray.200"
+                        w="100%"
+                        my={2}
+                        borderRadius="full"
+                      />
+                    )}
+                </React.Fragment>
+              ))}
+            </>
+          )}
         </Flex>
-      )}
-
-      {!isLoading && todos?.every(({ completed }) => completed) && (
-        <Stack align="center" gap={4} my={8}>
-          <Text
-            fontSize="xl"
-            textAlign="center"
-            color={emptyStateColor}
-            fontWeight="medium"
-          >
-            All tasks completed! 🎉
-          </Text>
-        </Stack>
-      )}
-
-      <Stack gap={4}>
-        {sortedTodos?.map((todo, index) => (
-          <React.Fragment key={todo._id}>
-            <TodoItem todo={todo} />
-            {!todo.completed && sortedTodos[index + 1]?.completed && (
-              <Box as="hr" borderColor={dividerColor} opacity={0.5} />
-            )}
-          </React.Fragment>
-        ))}
-      </Stack>
+      </Flex>
     </Container>
   );
 };

@@ -1,36 +1,25 @@
-import {
-  Box,
-  Container,
-  Flex,
-  Heading,
-  IconButton,
-  Image,
-} from "@chakra-ui/react";
-import { useColorMode } from "../ui/color-mode";
-import { LuMoon, LuSun } from "react-icons/lu";
-import { keyframes } from "@emotion/react";
-
-const bounceScale = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-  70% { transform: scale(0.95); }
-  100% { transform: scale(1); }
-`;
+import { Box, Container, Flex, IconButton } from "@chakra-ui/react";
+import { FiCalendar, FiBarChart2 } from "react-icons/fi";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export const Navbar = () => {
-  const { toggleColorMode, colorMode } = useColorMode();
-  const bgColor = colorMode === "dark" ? "#111111" : "#ffffff";
-  const textColor = colorMode === "dark" ? "#E6E6E6" : "#080808";
-  const borderColor = colorMode === "dark" ? "gray.800" : "gray.200";
-  const hoverBg = colorMode === "dark" ? "gray.700" : "gray.100";
-  const iconColor = colorMode === "dark" ? "#E6E6E6" : "#1A1A1A";
-  const buttonBg = colorMode === "dark" ? "transparent" : "gray.100";
-  const buttonBorderColor = colorMode === "dark" ? "gray.600" : "gray.300";
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const logoStyle = {
-    filter: colorMode === "dark" ? "none" : "invert(1)",
-    transition: "filter 0.3s ease-in-out",
-    willChange: "filter",
+  const toggleCalendar = () => {
+    if (location.pathname === "/calendar") {
+      navigate("/");
+    } else {
+      navigate("/calendar");
+    }
+  };
+
+  const toggleStatistics = () => {
+    if (location.pathname === "/statistics") {
+      navigate("/");
+    } else {
+      navigate("/statistics");
+    }
   };
 
   return (
@@ -38,73 +27,77 @@ export const Navbar = () => {
       as="nav"
       position="fixed"
       w="100%"
-      bg={bgColor}
-      color={textColor}
-      borderBottom="1px"
-      borderColor={borderColor}
-      zIndex={100}
-      transition="all 0.3s"
-      boxShadow={
-        colorMode === "dark"
-          ? "0 4px 20px rgba(0,0,0,0.4)"
-          : "0 2px 8px rgba(0,0,0,0.1)"
-      }
-      backdropFilter="blur(8px)"
-      backgroundColor={
-        colorMode === "dark" ? "rgba(17,17,17,0.95)" : "rgba(255,255,255,0.95)"
-      }
+      zIndex={10}
+      bg="white"
+      borderBottom="1px solid"
+      borderColor="gray.100"
+      backdropFilter="blur(10px)"
+      backgroundColor="rgba(255, 255, 255, 0.9)"
+      boxShadow="0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)"
+      transition="all 0.3s ease"
     >
-      <Container maxW="container.xl">
-        <Flex py={4} align="center" justify="space-between">
-          <Flex
-            align="center"
-            gap={2}
-            _hover={{ opacity: 0.8 }}
+      <Container maxW="container.xl" py={4}>
+        <Flex justify="space-between" align="center">
+          <Box
+            fontSize="2xl"
+            fontWeight="bold"
             cursor="pointer"
-          >
-            <Image
-              src="/listify.svg"
-              h="32px"
-              w="32px"
-              alt="Listify logo"
-              style={logoStyle}
-              _hover={{ transform: "scale(1.05)" }}
-              transition="transform 0.3s"
-            />
-            <Heading size="md" color={textColor} transition="color 0.3s">
-              Listify
-            </Heading>
-          </Flex>
-
-          <IconButton
-            aria-label="Toggle color mode"
-            onClick={toggleColorMode}
-            variant="ghost"
-            fontSize="20px"
-            color={iconColor}
-            bg={buttonBg}
-            border="1px solid"
-            borderColor={buttonBorderColor}
-            animation={`${bounceScale} 0.4s ease-in-out`}
-            transition="background-color 0.3s"
+            onClick={() => navigate("/")}
+            color="gray.800"
             _hover={{
-              bg: hoverBg,
-              color: iconColor,
-              borderColor: colorMode === "dark" ? "gray.500" : "gray.400",
-              transform: "scale(1.05)",
+              color: "gray.900",
+              transform: "translateY(-1px)",
             }}
-            _active={{
-              color: iconColor,
-              bg: colorMode === "dark" ? "gray.700" : "gray.200",
-              transform: "scale(0.95)",
-            }}
-            _focus={{
-              boxShadow: "none",
-              outline: "none",
-            }}
+            transition="all 0.2s ease"
           >
-            {colorMode === "dark" ? <LuSun /> : <LuMoon />}
-          </IconButton>
+            Listify
+          </Box>
+          <Flex gap={2}>
+            <IconButton
+              aria-label="Toggle calendar"
+              onClick={toggleCalendar}
+              variant="ghost"
+              color={
+                location.pathname === "/calendar" ? "blue.500" : "gray.600"
+              }
+              size="lg"
+              _hover={{
+                bg: "gray.100",
+                color:
+                  location.pathname === "/calendar" ? "blue.600" : "gray.800",
+                transform: "translateY(-1px)",
+              }}
+              _active={{
+                bg: "gray.200",
+                transform: "translateY(0)",
+              }}
+              transition="all 0.2s ease"
+            >
+              <FiCalendar size={20} />
+            </IconButton>
+            <IconButton
+              aria-label="View statistics"
+              onClick={toggleStatistics}
+              variant="ghost"
+              color={
+                location.pathname === "/statistics" ? "blue.500" : "gray.600"
+              }
+              size="lg"
+              _hover={{
+                bg: "gray.100",
+                color:
+                  location.pathname === "/statistics" ? "blue.600" : "gray.800",
+                transform: "translateY(-1px)",
+              }}
+              _active={{
+                bg: "gray.200",
+                transform: "translateY(0)",
+              }}
+              transition="all 0.2s ease"
+            >
+              <FiBarChart2 size={20} />
+            </IconButton>
+          </Flex>
         </Flex>
       </Container>
     </Box>
