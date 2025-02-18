@@ -16,15 +16,22 @@ go tool cover -func=coverage.out
 rm coverage.out
 cd ..
 
-# # Running frontend tests
-# echo "Running frontend tests..."
-# cd client
-# if ! npm test ; then
-#     echo "❌ Frontend tests failed"
-#     cd ..
-#     exit 1
-# fi
-# cd ..
+# Running frontend tests with coverage
+echo "Running frontend tests..."
+cd client
+if ! npm run coverage ; then
+    echo "❌ Frontend tests failed"
+    cd ..
+    exit 1
+fi
+
+# Check if coverage directory exists and display summary
+if [ -d "coverage" ]; then
+    echo "Frontend test coverage summary:"
+    cat coverage/coverage-summary.json | grep -A 3 "total"
+    rm -rf coverage
+fi
+cd ..
 
 echo "✅ All tests passed! Pushing changes..."
 exit 0 
